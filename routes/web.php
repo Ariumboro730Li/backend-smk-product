@@ -1,0 +1,39 @@
+<?php
+
+use App\Constants\HttpStatusCodes;
+use Illuminate\Support\Facades\Route;
+
+
+
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+|
+| Here is where you can register web routes for your application. These
+| routes are loaded by the RouteServiceProvider and all of them will
+| be assigned to the "web" middleware group. Make something great!
+|
+*/
+
+Route::fallback(function () {
+    return response()->json([
+        'status_code'  => HttpStatusCodes::HTTP_NOT_FOUND,
+        'error'   => true,
+        'message' => 'URL Not Found'
+    ], HttpStatusCodes::HTTP_NOT_FOUND);
+});
+
+Route::get('/healthz', function () {
+    return 1;
+});
+
+Route::group(['middleware' => 'application:esmk'], function () {
+    Route::get('test', function () {
+        return response()->json([
+            'status_code'  => HttpStatusCodes::HTTP_OK,
+            'error'   => false,
+            'message' => 'Welcome to ESMK API'
+        ], HttpStatusCodes::HTTP_OK);
+    });
+});
