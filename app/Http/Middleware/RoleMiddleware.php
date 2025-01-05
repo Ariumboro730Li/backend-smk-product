@@ -11,12 +11,14 @@ class RoleMiddleware
     {
         // Ambil user dari token JWT
         $user = JWTAuth::parseToken()->toUser();
-        dd($user);
         // Periksa apakah role cocok
-        if ($user->role !== $role) {
+
+        $payload = JWTAuth::parseToken()->getPayload();
+
+        if ($payload->get('role') != $role) {
             return response()->json([
                 'error' => true,
-                'message' => 'Unauthorized. Role tidak sesuai.'
+                'message' => 'Maaf, Anda tidak diizinkan mengakses.'
             ], 403);
         }
 

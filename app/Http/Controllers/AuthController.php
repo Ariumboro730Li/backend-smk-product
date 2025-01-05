@@ -54,6 +54,7 @@ class AuthController extends Controller
             'sub' => $user->id,
             'username' => $user->username,
             'name' => $user->name,
+            'role' => 'internal',
             'iat' => time(), // Waktu token dibuat
         ];
         $token = $this->generateToken($payload);
@@ -114,6 +115,7 @@ class AuthController extends Controller
             'sub' => $user->id,
             'username' => $user->username,
             'name' => $user->name,
+            'role' => 'perusahaan',
             'iat' => time(), // Waktu token dibuat
         ];
         $token = $this->generateToken($payload);
@@ -134,13 +136,34 @@ class AuthController extends Controller
 
     public function me()
     {
-        // if (!$user = JWTAuth::parseToken()->authenticate()) {
-        //     return response()->json(['error' => 'User not found'], 404);
-        // }
+        $user = JWTAuth::parseToken()->authenticate();
 
-        // return response()->json(compact('user'));
-        return response()->json(request()->app_user);
-    }
+        // Periksa apakah token memiliki role 'company'
+        $payload = JWTAuth::parseToken()->getPayload();
+
+        if ($payload->get('role') == 'perusahaan') {
+            return response()->json([
+                'status_code' => HttpStatusCodes::HTTP_OK,
+                'error' => true,
+                'data' =>
+                [
+                    'user' => auth('company')->user(),
+                    'payload' => $payload
+                ]
+
+            ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
+        }
+
+        return response()->json([
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'error' => true,
+            'data' =>
+            [
+                'user' => auth()->user(),
+                'payload' => $payload
+            ]
+    ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
+}
 
     public function logout()
     {
