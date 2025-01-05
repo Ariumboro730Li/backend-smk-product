@@ -83,26 +83,26 @@ class RegisterController extends Controller
         $defaultPassword  = $request->password;
 
         $user = new Company();
-        // $user->nib = strip_tags($request->nib);
-        // $user->username = strip_tags($request->username);
-        // $user->company_phone_number = strip_tags($request->company_phone_number);
-        // $user->phone_number = strip_tags($request->phone_number);
-        // $user->province_id = strip_tags($request->province_id);
-        // $user->city_id = strip_tags($request->city_id);
-        // $user->name = strip_tags($request->name);
-        // $user->email = strip_tags($request->email);
-        // $user->password = Hash::make(value: $defaultPassword);
-        // $user->pic_name = strip_tags($request->pic_name);
-        // $user->pic_phone = strip_tags($request->pic_phone ?? "-");
-        // $user->established = $request->established ?? null;
-        // $user->save();
+        $user->nib = strip_tags($request->nib);
+        $user->username = strip_tags($request->username);
+        $user->company_phone_number = strip_tags($request->company_phone_number);
+        $user->phone_number = strip_tags($request->phone_number);
+        $user->province_id = strip_tags($request->province_id);
+        $user->city_id = strip_tags($request->city_id);
+        $user->name = strip_tags($request->name);
+        $user->email = strip_tags($request->email);
+        $user->password = Hash::make(value: $defaultPassword);
+        $user->pic_name = strip_tags($request->pic_name);
+        $user->pic_phone = strip_tags($request->pic_phone ?? "-");
+        $user->established = $request->established ?? null;
+        $user->save();
 
-        // foreach ($request->service_types as $val) {
-        //         CompanyServiceType::create([
-        //             'company_id'        => $user->id,
-        //             'service_type_id'   => $val,
-        //         ]);
-        // }
+        foreach ($request->service_types as $val) {
+                CompanyServiceType::create([
+                    'company_id'        => $user->id,
+                    'service_type_id'   => $val,
+                ]);
+        }
 
         $token = (string) Str::uuid();
         dispatch(new NotificationEmail($request->email, array(
