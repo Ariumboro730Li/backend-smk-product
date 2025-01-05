@@ -2,6 +2,8 @@
 
 use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\MasterData\CityController;
+use App\Http\Controllers\MasterData\ProvinceController;
 use App\Http\Controllers\OssController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UploadFileController;
@@ -35,6 +37,20 @@ Route::get('/healthz', function () {
 Route::post('login', [AuthController::class, 'login']);
 // Route::post('logout', [AuthController::class, 'logout']);
 Route::post('register', [RegisterController::class, 'register']);
+
+Route::controller(ProvinceController::class)->group(function () {
+    Route::group(['prefix' => 'provinsi'], function () {
+        Route::get('/list', 'index');
+    });
+});
+
+//citiees
+Route::controller(CityController::class)->group(function () {
+    Route::group(['prefix' => 'kota'], function () {
+        Route::get('/list', 'index');
+    });
+});
+
 
 Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
     Route::get('auth/me', [AuthController::class, 'me']);

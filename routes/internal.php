@@ -47,7 +47,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/status', 'status');
             Route::get('/detail', 'detail');
             Route::post('/create', 'store');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/destroy', 'destroy');
             Route::get('/get-smk-element', 'smkElement');
         });
     });
@@ -57,7 +57,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/list', 'index');
             Route::get('/detail', 'show');
             Route::post('/create', 'store');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/destroy', 'destroy');
             Route::get('/status', 'status');
         });
     });
@@ -66,9 +66,9 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::group(['prefix' => 'provinsi'], function () {
             Route::get('/list', 'index');
             Route::post('/store', 'store');
-            Route::put('/update', 'update');
-            Route::get('/edit', 'edit');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/update', 'update');
+            Route::post('/edit', 'edit');
+            Route::post('/destroy', 'destroy');
         });
     });
     //citiees
@@ -76,9 +76,9 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::group(['prefix' => 'kota'], function () {
             Route::get('/list', 'index');
             Route::post('/store', 'store');
-            Route::put('/update', 'update');
-            Route::get('/edit', 'edit');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/update', 'update');
+            Route::post('/edit', 'edit');
+            Route::post('/destroy', 'destroy');
             Route::get('/select2', 'select2');
         });
     });
@@ -92,8 +92,8 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/filterUser', 'filterUserDipilih');
             Route::get('/filterUserEdit', 'filterUser');
             Route::post('/store', 'store');
-            Route::put('/update', 'update');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/update', 'update');
+            Route::post('/destroy', 'destroy');
             Route::get('/listUser', 'listUser');
             Route::get('/inactive', 'disable');
             Route::get('/active', 'enable');
@@ -110,15 +110,15 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/city', 'city');
             Route::post('/store', 'store');
             Route::get('/edit', 'edit');
-            Route::put('/update', 'update');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/update', 'update');
+            Route::post('/destroy', 'destroy');
         });
     });
     Route::controller(SkNumberController::class)->group(function(){
         Route::group(['prefix' => 'sk-number'], function (){
             Route::get('/list', 'index');
             Route::post('/store', 'store');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/destroy', 'destroy');
             Route::post('/update', 'update');
             Route::get('/status', 'status');
         });
@@ -128,7 +128,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::group(['prefix' => 'master-kbli'], function (){
             Route::get('/list', 'index');
             Route::post('/store', 'store');
-            Route::delete('/destroy', 'destroy');
+            Route::post('/destroy', 'destroy');
             Route::post('/update', 'update');
         });
     });
@@ -166,7 +166,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::post('/store', 'store');
             Route::get('/detail', 'show');
             Route::get('/getView', 'getFileUrlToBase64');
-            Route::put('/update', 'update');
+            Route::post('/update', 'update');
         });
     });
     Route::get('/signer', [SignerController::class, 'index']);
@@ -176,7 +176,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::group(['prefix' => 'pengajuan-sertifikat'], function () {
             Route::get('/list', 'index');
             Route::get('/detail', 'detail');
-            Route::put('/update', 'update');
+            Route::post('/update', 'update');
 
 
             Route::get('/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
@@ -195,7 +195,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
 
             Route::controller(JadwalInterviewController::class)->group(function () {
                 Route::group(['prefix' => 'jadwal'], function () {
-                    Route::put('/updateJadwal   ','update');
+                    Route::post('/updateJadwal   ','update');
                     Route::get('/getJadwal', 'getJadwalInterview');
                     Route::post('/storeJadwal', 'storeAssessmentInterview');
                 });
