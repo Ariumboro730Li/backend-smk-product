@@ -5,12 +5,18 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class CompanyServiceType extends Model
+class NibOss extends Model
 {
     use HasFactory;
 
+    protected $table = 'nib_oss';
+
     protected $fillable = [
-        'company_id',
-        'service_type_id',
+        'nib',
+        'data_nib',
+    ];
+
+    protected $casts = [
+        'data_nib' => 'json'
     ];
 }

@@ -2,6 +2,7 @@
 
 use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\OssController;
+use App\Http\Controllers\RegisterController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -31,6 +32,7 @@ Route::get('/healthz', function () {
 
 Route::post('login/internal', [AuthController::class, 'login']);
 Route::post('login/company', [AuthController::class, 'loginCompany']);
+Route::post('register', [RegisterController::class, 'register']);
 
 Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
     Route::get('auth/me', [AuthController::class, 'me'])->middleware('auth.jwt');

@@ -144,7 +144,7 @@ class AuthController extends Controller
         if ($payload->get('role') == 'perusahaan') {
             return response()->json([
                 'status_code' => HttpStatusCodes::HTTP_OK,
-                'error' => true,
+                'error' => false,
                 'data' =>
                 [
                     'user' => auth('company')->user(),
@@ -164,7 +164,7 @@ class AuthController extends Controller
 
         return response()->json([
             'status_code' => HttpStatusCodes::HTTP_OK,
-            'error' => true,
+            'error' => false,
             'data' =>
             [
                 'user' => auth()->user(),
