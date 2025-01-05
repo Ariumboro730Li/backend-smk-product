@@ -122,7 +122,7 @@ class PengesahanDokumenController extends Controller
     private function generateCertificate($request, $company, $signer)
     {
 
-        $workUnitID = $request->auth_app_data->user->work_unit_id;
+        $workUnitID = auth()->user()->work_unit_id;
 
         $workUnitDetail = WorkUnit::find($workUnitID);
         // Mengambil template sertifikat

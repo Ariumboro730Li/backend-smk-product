@@ -26,7 +26,7 @@ class SignerController extends Controller
 
     public function getDatatable($request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
         $workUnitDetail = WorkUnit::find($workUnit);
         $query = Signer::with('workUnit')->where('is_active', 1)->select();
 

@@ -52,6 +52,6 @@ class Application
             'error'             => true,
             'message'           => HttpStatusCodes::getMessageForCode(HttpStatusCodes::HTTP_UNAUTHORIZED)
         ], HttpStatusCodes::HTTP_UNAUTHORIZED);
-        
+
     }
 }

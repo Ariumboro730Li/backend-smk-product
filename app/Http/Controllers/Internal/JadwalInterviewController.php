@@ -372,8 +372,8 @@ class JadwalInterviewController extends Controller
         }
 
 
-        $authAppData = $request->auth_app_data;
-        $user = User::where('id', $authAppData->user->id)->first();
+        $authAppData = auth();
+        $user = User::where('id', $authAppData->user()->id)->first();
         $request['assessment_status'] = 'scheduling';
         $request['request_status'] = 'scheduled_interview';
         $request['dispostion_by'] = $user->id;

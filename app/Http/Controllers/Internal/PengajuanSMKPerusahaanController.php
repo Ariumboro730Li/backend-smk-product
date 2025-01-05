@@ -27,7 +27,7 @@ class PengajuanSMKPerusahaanController extends Controller
 
     private function initializeWorkUnitData(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id ?? null;
+        $workUnit = auth()->user()->work_unit_id ?? null;
 
         // Check if work unit exists
         if ($workUnit) {
@@ -123,7 +123,7 @@ class PengajuanSMKPerusahaanController extends Controller
         if ($request->company_id) {
             $certificateRequest->where('certificate_requests.company_id', $request->company_id);
         }
-        $work = $request->auth_app_data->user->work_unit_id;
+        $work = auth()->user()->work_unit_id;
 
         $user = User::select('id', 'name')
             ->where('work_unit_id', $work);
@@ -185,7 +185,7 @@ class PengajuanSMKPerusahaanController extends Controller
 
     public function detail(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id ?? null;
+        $workUnit = auth()->user()->work_unit_id ?? null;
 
         // Check and retrieve work unit details
         if ($workUnit) {

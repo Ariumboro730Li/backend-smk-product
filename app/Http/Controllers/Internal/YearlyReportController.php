@@ -194,8 +194,8 @@ class YearlyReportController extends Controller
     public function getDetail(Request $request)
     {
         // Ambil WorkUnit berdasarkan ID yang diberikan
-        $authAppData = $request->auth_app_data;
-        $user = User::where('id', $authAppData->user->id)->first();
+        $authAppData = auth();
+        $user = User::where('id', $authAppData->user()->id)->first();
         $workunit = WorkUnit::find($user->work_unit_id);
 
         // Periksa apakah workunit ditemukan
@@ -262,8 +262,8 @@ class YearlyReportController extends Controller
     public function update(Request $request)
     {
         // Retrieve user from request
-        $authAppData = $request->auth_app_data;
-        $user = User::where('id', $authAppData->user->id)->first();
+        $authAppData = auth();
+        $user = User::where('id', $authAppData->user()->id)->first();
 
         // Validation
         $validator = Validator::make($request->all(), [

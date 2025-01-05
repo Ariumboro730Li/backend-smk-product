@@ -99,7 +99,7 @@ class BeritaAcaraController extends Controller
 
     public function create(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
 
         $validator = Validator::make($request->all(), [
             'photos_of_event' => 'required',

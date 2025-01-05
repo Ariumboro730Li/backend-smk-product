@@ -11,7 +11,7 @@ class  AssessorController extends Controller
 {
     public function index(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
 
         $data = User::select('id', 'name')
             ->where('work_unit_id', $workUnit);

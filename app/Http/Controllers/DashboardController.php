@@ -54,7 +54,7 @@ class DashboardController extends Controller
 
     public function company(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
         $coverageService = WorkUnitHasService::select()
             ->where('work_unit_id', $workUnit)
             ->get()
@@ -83,7 +83,7 @@ class DashboardController extends Controller
 
     public function serviceTypes(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
         $coverageService = WorkUnitHasService::select()
             ->where('work_unit_id', $workUnit)
             ->get()
@@ -114,7 +114,7 @@ class DashboardController extends Controller
 
     public function certificateRequest(Request $request)
     {
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
         $coverageService = WorkUnitHasService::select()
             ->where('work_unit_id', $workUnit)
             ->get()
@@ -150,7 +150,7 @@ class DashboardController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->limit <= 30 ? $request->limit : 30;
-        $workUnit = $request->auth_app_data->user->work_unit_id;
+        $workUnit = auth()->user()->work_unit_id;
         $workUnitDetail = WorkUnit::find($workUnit);
         $coverageService = WorkUnitHasService::select()
             ->where('work_unit_id', $workUnit)
@@ -209,7 +209,7 @@ class DashboardController extends Controller
         // Menentukan sorting dan limit
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->limit <= 30 ? $request->limit : 30;
-        $wotkUnit = $request->auth_app_data->user->work_unit_id;
+        $wotkUnit = auth()->user()->work_unit_id;
         $dateFrom = $request->date_from;
         $dateTo = $request->date_to;
         $workUnitDetail = WorkUnit::find($wotkUnit);
@@ -264,8 +264,8 @@ class DashboardController extends Controller
 
     public function getUserDetails(Request $request): JsonResponse
     {
-        $authAppData = $request->auth_app_data;
-        $user = User::where('id', $authAppData->user->id)->first();
+        $authAppData = auth();
+        $user = User::where('id', $authAppData->user()->id)->first();
         // $userRole = Role::where('id', $user->is_ministry)->first();
         $roles = $user->getRoleNames();
         // dd($roles);auth_app_data
