@@ -40,6 +40,7 @@ class RegisterController extends Controller
                 'required',
                 'string',
                 'min:8', // Minimal 8 karakter
+                'max:150', // Maksimal 150 karakter
                 'regex:/[A-Z]/', // Harus mengandung huruf besar
                 'regex:/[a-z]/', // Harus mengandung huruf kecil
                 'regex:/[0-9]/', // Harus mengandung angka
