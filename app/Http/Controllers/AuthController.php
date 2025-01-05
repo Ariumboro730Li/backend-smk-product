@@ -148,7 +148,15 @@ class AuthController extends Controller
                 'data' =>
                 [
                     'user' => auth('company')->user(),
-                    'payload' => $payload
+                    'payload' => [
+                        'sub' => $payload->get('sub'),
+                        'username' => $payload->get('username'),
+                        'name' => $payload->get('name'),
+                        'role' => $payload->get('role'),
+                        'iat' => $payload->get('iat'),
+                        'exp' => $payload->get('exp'),
+                        'nbf'  => $payload->get('nbf'),
+                    ]
                 ]
 
             ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
@@ -160,8 +168,16 @@ class AuthController extends Controller
             'data' =>
             [
                 'user' => auth()->user(),
-                'payload' => $payload
-            ]
+                'payload' => [
+                    'sub' => $payload->get('sub'),
+                    'username' => $payload->get('username'),
+                    'name' => $payload->get('name'),
+                    'role' => $payload->get('role'),
+                    'iat' => $payload->get('iat'),
+                    'exp' => $payload->get('exp'),
+                    'nbf'  => $payload->get('nbf'),
+                ]
+        ]
     ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
 }
 
