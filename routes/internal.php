@@ -67,7 +67,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/list', 'index');
             Route::post('/store', 'store');
             Route::post('/update', 'update');
-            Route::post('/edit', 'edit');
+            Route::get('/edit', 'edit');
             Route::post('/destroy', 'destroy');
         });
     });
@@ -77,7 +77,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
             Route::get('/list', 'index');
             Route::post('/store', 'store');
             Route::post('/update', 'update');
-            Route::post('/edit', 'edit');
+            Route::get('/edit', 'edit');
             Route::post('/destroy', 'destroy');
             Route::get('/select2', 'select2');
         });
