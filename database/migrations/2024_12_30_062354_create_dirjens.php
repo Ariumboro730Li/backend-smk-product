@@ -8,25 +8,22 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
+    public function up(): void
     {
         Schema::create('dirjens', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('nip');
+            $table->bigInteger('user_id')->nullable();
+            $table->date('start_date')->nullable();
+            $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();
         });
     }
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('dirjens');
     }

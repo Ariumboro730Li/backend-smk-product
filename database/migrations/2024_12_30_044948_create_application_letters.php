@@ -11,9 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('directorates', function (Blueprint $table) {
+        Schema::create('application_letters', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique();
+            $table->bigInteger('certificate_request_id')->nullable();
+            $table->string('number_of_application_letter')->nullable();
+            $table->date('date_of_letter')->nullable();
+            $table->text('file')->nullable();
             $table->timestamps();
         });
     }
@@ -23,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('directorates');
+        Schema::dropIfExists('application_letters');
     }
 };

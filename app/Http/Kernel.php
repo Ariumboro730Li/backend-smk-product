@@ -54,6 +54,9 @@ class Kernel extends HttpKernel
      */
     protected $middlewareAliases = [
         'auth' => \App\Http\Middleware\Authenticate::class,
+        'auth.jwt' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
+        'check.token' => \App\Http\Middleware\CheckTokenMiddleware::class,
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
         'is_auth' => \App\Http\Middleware\IsAuth::class,
         'is_admin' => \App\Http\Middleware\IsAdmin::class,
         'application' => \App\Http\Middleware\Application::class,

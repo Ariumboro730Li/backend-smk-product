@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('offices', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->string('name')->unique();
-            $table->foreignId('city_id')->constrained('cities');
+        Schema::create('service_units', function (Blueprint $table) {
+            $table->id();
+            $table->string('name')->nullable();
+            $table->bigInteger('work_unit_id')->nullable();
+            $table->bigInteger('province_id')->nullable();
+            $table->bigInteger('city_id')->nullable();
             $table->timestamps();
         });
     }
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('offices');
+        Schema::dropIfExists('service_units');
     }
 };

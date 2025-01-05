@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_types', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->string('name');
+        Schema::create('interview_assessors', function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger('assessment_interview_id')->nullable();
+            $table->bigInteger('assessor')->nullable();
+            $table->bigInteger('disposition_by')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -24,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_types');
+        Schema::dropIfExists('interview_assessors');
     }
 };

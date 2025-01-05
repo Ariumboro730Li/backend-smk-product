@@ -2,7 +2,7 @@
 
 use App\Constants\HttpStatusCodes;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\AuthController;
 
 
 /*
@@ -28,7 +28,12 @@ Route::get('/healthz', function () {
     return 1;
 });
 
-Route::group(['middleware' => 'application:esmk'], function () {
+Route::post('login/internal', [AuthController::class, 'login']);
+Route::post('login/company', [AuthController::class, 'loginCompany']);
+
+Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
+    Route::get('auth/me', [AuthController::class, 'me'])->middleware('auth.jwt');
+    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth.jwt');
     Route::get('test', function () {
         return response()->json([
             'status_code'  => HttpStatusCodes::HTTP_OK,

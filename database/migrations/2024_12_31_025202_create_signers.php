@@ -11,9 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('service_types', function (Blueprint $table) {
+        Schema::create('signers', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->bigInteger('work_unit_id')->nullable();
+            $table->string('name')->nullable();
+            $table->string('position')->nullable();
+            $table->string('identity_number')->nullable();
+            $table->string('identity_type')->nullable();
+            $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();
             $table->softDeletes();
         });
@@ -24,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('service_types');
+        Schema::dropIfExists('signers');
     }
 };

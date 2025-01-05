@@ -8,10 +8,11 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Company extends Authenticatable
+class Company extends Authenticatable implements JWTSubject
 {
     use HasFactory, Notifiable, SoftDeletes;
 
@@ -80,5 +81,15 @@ class Company extends Authenticatable
     public function serviceTypes()
     {
         return $this->belongsToMany(ServiceType::class, 'company_service_types', 'company_id', 'service_type_id');
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return [];
     }
 }

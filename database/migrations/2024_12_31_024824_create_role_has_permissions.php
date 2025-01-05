@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('smk_elements', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->string('title')->unique();
-            $table->json('element_properties');
-            $table->boolean('is_active')->default(1);
+        Schema::create('role_has_permissions', function (Blueprint $table) {
+            $table->id();
+            $table->bigInteger('permission_id')->nullable();
+            $table->bigInteger('role_id')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('smk_elements');
+        Schema::dropIfExists('role_has_permissions');
     }
 };

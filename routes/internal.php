@@ -37,9 +37,7 @@ use App\Http\Controllers\MasterData\SkNumberController;
 |
 */
 
-
 Route::group(['prefix' => 'admin-panel'], function () {
-
     // smk element
     Route::controller(SmkElementController::class)->group(function () {
         Route::group(['prefix' => 'smk-element'], function () {

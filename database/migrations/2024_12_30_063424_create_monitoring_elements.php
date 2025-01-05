@@ -12,12 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('monitoring_elements', function (Blueprint $table) {
-            $table->uuid()->primary();
-            $table->string('title')->unique();
-            $table->json('element_properties');
-            $table->json('monitoring_elements');
-            $table->json('additional_questions');
-            $table->boolean('is_active')->default(1);
+            $table->id();
+            $table->string('title')->nullable();
+            $table->json('element_properties')->nullable();
+            $table->json('monitoring_elements')->nullable();
+            $table->json('additional_questions')->nullable();
+            $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();
         });
     }

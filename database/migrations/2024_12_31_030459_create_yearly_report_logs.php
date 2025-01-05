@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('cities', function (Blueprint $table) {
+        Schema::create('yearly_report_logs', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->unsignedBigInteger('province_id');
-            $table->string('administrasi_code');
+            $table->bigInteger('company_id')->nullable();
+            $table->bigInteger('yearly_report_id')->nullable();
+            $table->integer('year')->nullable();
+            $table->date('due_date')->nullable();
+            $table->boolean('is_completed')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +27,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('cities');
+        Schema::dropIfExists('yearly_report_logs');
     }
 };

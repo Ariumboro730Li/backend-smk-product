@@ -33,8 +33,10 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware([
                 'web',
-                'is_auth',
-                'app_type_user:internal'
+                // 'is_auth',
+                // 'app_type_user:internal'
+                'check.token', 'auth.jwt',
+                'role:internal'
             ])
             ->name((string) "internal.")
             ->prefix((string) "/internal")
@@ -42,8 +44,10 @@ class RouteServiceProvider extends ServiceProvider
 
             Route::middleware([
                 'web',
-                'is_auth',
-                'app_type_user:perusahaan'
+                // 'is_auth',
+                // 'app_type_user:perusahaan'
+                'check.token', 'auth.jwt',
+                'role:perusahaan'
             ])
             ->name((string) "company.")
             ->prefix((string) "/company")

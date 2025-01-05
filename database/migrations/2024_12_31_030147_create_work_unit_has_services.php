@@ -13,15 +13,9 @@ return new class extends Migration
     {
         Schema::create('work_unit_has_services', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('work_unit_id')
-                ->constrained('work_units')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->foreignId('service_type_id')
-                ->constrained('service_types')
-                ->onUpdate('cascade')
-                ->onDelete('cascade');
-            $table->boolean('is_active')->default(1);
+            $table->bigInteger('work_unit_id')->nullable();
+            $table->bigInteger('service_type_id')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });
@@ -29,10 +23,8 @@ return new class extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
+    public function down(): void
     {
         Schema::dropIfExists('work_unit_has_services');
     }
