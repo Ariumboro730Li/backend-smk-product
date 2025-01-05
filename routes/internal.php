@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpStatusCodes;
+use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterData\CityController;
@@ -198,6 +199,15 @@ Route::group(['prefix' => 'admin-panel'], function () {
                     Route::post('/storeJadwal', 'storeAssessmentInterview');
                 });
             });
+        });
+    });
+
+    Route::controller(SettingController::class)->group(function () {
+        Route::group(['prefix' => 'setting'], function () {
+            Route::get('/list', 'list');
+            Route::get('/find', 'get');
+            Route::post('/oss', 'oss');
+            Route::post('/aplikasi', 'aplikasi');
         });
     });
 
