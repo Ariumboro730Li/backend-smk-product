@@ -14,8 +14,8 @@ class FileService
     private $storage;
 
     function __construct() {
-
-        $this->storage = Storage::cloud();
+        // $this->storage = Storage::cloud();
+        $this->storage = Storage::disk('public');
 
     }
     public function upload($file, $path = '')

@@ -5,11 +5,15 @@ namespace App\Http\Controllers;
 use App\Models\CompanyServiceType;
 use App\Models\NibOss;
 use App\Models\Setting;
+use Carbon\Carbon;
+use DB;
 use Hash;
 use Illuminate\Http\Request;
 use App\Models\Company;
 use App\Constants\HttpStatusCodes;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\Esmk\NotificationEmail;
+use Str;
 
 class RegisterController extends Controller
 {
@@ -32,6 +36,15 @@ class RegisterController extends Controller
             "nib" => "required|unique:companies,nib,NULL,id,deleted_at,NULL",
             "name" => "required|string",
             "username" => 'required|unique:companies,username,NULL,id,deleted_at,NULL',
+            'password' => [
+                'required',
+                'string',
+                'min:8', // Minimal 8 karakter
+                'regex:/[A-Z]/', // Harus mengandung huruf besar
+                'regex:/[a-z]/', // Harus mengandung huruf kecil
+                'regex:/[0-9]/', // Harus mengandung angka
+                'regex:/[\W]/',  // Harus mengandung simbol
+            ],
             "address" => "required|string",
             "phone_number" =>  [
                 'required',
@@ -52,6 +65,8 @@ class RegisterController extends Controller
             ],
 
         ], [
+            'password.min' => 'Kata sandi harus memiliki minimal 8 karakter.',
+            'password.regex' => 'Kata sandi harus mengandung huruf besar, huruf kecil, angka, dan simbol.',
             'phone_number.regex' => 'Nomor Telepon harus diawali dengan 62 | 0  dan hanya terdiri dari angka.',
             'pic_phone.regex' => 'Nomor Telepon PIC harus diawali dengan 62 | 0  dan hanya terdiri dari angka.',
             'company_phone_number.regex' => 'Nomor Telepon Perusahaan harus diawali dengan 62 | 0 dan hanya terdiri dari angka.',
@@ -65,26 +80,43 @@ class RegisterController extends Controller
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
 
-        $user = new Company();
-        $user->nib = strip_tags($request->nib);
-        $user->username = strip_tags($request->username);
-        $user->company_phone_number = strip_tags($request->company_phone_number);
-        $user->phone_number = strip_tags($request->phone_number);
-        $user->province_id = strip_tags($request->province_id);
-        $user->city_id = strip_tags($request->city_id);
-        $user->name = strip_tags($request->name);
-        $user->email = strip_tags($request->email);
-        $user->password = Hash::make($request->password);
-        $user->pic_name = strip_tags($request->pic_name);
-        $user->pic_phone = strip_tags($request->pic_phone ?? "-");
-        $user->save();
+        $defaultPassword  = $request->password;
 
-        foreach ($request->service_types as $val) {
-            CompanyServiceType::create([
-                'company_id'        => $user->id,
-                'service_type_id'   => $val,
-            ]);
-        }
+        $user = new Company();
+        // $user->nib = strip_tags($request->nib);
+        // $user->username = strip_tags($request->username);
+        // $user->company_phone_number = strip_tags($request->company_phone_number);
+        // $user->phone_number = strip_tags($request->phone_number);
+        // $user->province_id = strip_tags($request->province_id);
+        // $user->city_id = strip_tags($request->city_id);
+        // $user->name = strip_tags($request->name);
+        // $user->email = strip_tags($request->email);
+        // $user->password = Hash::make(value: $defaultPassword);
+        // $user->pic_name = strip_tags($request->pic_name);
+        // $user->pic_phone = strip_tags($request->pic_phone ?? "-");
+        // $user->established = $request->established ?? null;
+        // $user->save();
+
+        // foreach ($request->service_types as $val) {
+        //         CompanyServiceType::create([
+        //             'company_id'        => $user->id,
+        //             'service_type_id'   => $val,
+        //         ]);
+        // }
+
+        $token = (string) Str::uuid();
+        dispatch(new NotificationEmail($request->email, array(
+            'name'                  => $request->name,
+            'pic_name'              => $request->pic_name,
+            'nib'                   => $request->nib,
+            'address'               => $request->address,
+            'company_phone_number'  => $request->company_phone_number,
+            'username'              => $request->username,
+            'phone_number'          => $request->phone_number,
+            'default_password'      => $defaultPassword,
+            'token'                 => $token
+        )))->delay(Carbon::now()->addSeconds(3));
+
 
         return response()->json([
             'status_code'   => HttpStatusCodes::HTTP_OK,

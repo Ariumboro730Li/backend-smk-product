@@ -1,8 +1,10 @@
 <?php
 
 use App\Constants\HttpStatusCodes;
+use App\Http\Controllers\FileController;
 use App\Http\Controllers\OssController;
 use App\Http\Controllers\RegisterController;
+use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -43,6 +45,12 @@ Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
             'error'   => false,
             'message' => 'Welcome to ESMK API'
         ], HttpStatusCodes::HTTP_OK);
+    });
+
+    Route::controller(FileController::class)->group(function () {
+        Route::group(['prefix' => 'file'], function () {
+            Route::post('/upload', 'uploadFile');
+        });
     });
 });
 

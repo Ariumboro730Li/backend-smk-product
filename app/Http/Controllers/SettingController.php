@@ -60,6 +60,7 @@ class SettingController extends Controller
         $settingName = "aplikasi";
         $validator = Validator::make($request->all(), [
             "nama" => "required|string",
+            "nama_instansi" => "required|string",
             "deskripsi" => "required|string",
             "email" => "required|string",
             // "no_wa" => "required|string",
@@ -89,6 +90,7 @@ class SettingController extends Controller
         ], [
             'value' => [
                 'nama' => strip_tags($request->nama),
+                'nama_instansi' => strip_tags($request->nama_instansi),
                 'deskripsi' => strip_tags($request->deskripsi),
                 'email' => strip_tags($request->email),
                 'whatsapp' => strip_tags($request->whatsapp),
@@ -105,7 +107,6 @@ class SettingController extends Controller
             'error'         => false,
             'message'       => 'Setting berhasil disimpan.'
         ], HttpStatusCodes::HTTP_OK);
-
     }
 
     public function get(Request $request){
