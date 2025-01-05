@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpStatusCodes;
+use App\Http\Controllers\OssController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Company\SertifikatSMKController;
 use App\Http\Controllers\Company\LaporanTahunanController;
@@ -48,12 +49,16 @@ Route::group(['prefix' => 'dashboard'], function () {
             Route::get('/getuser', 'getUserDetails');
             Route::get('/perusahaan', 'perusahaan');
             Route::get('/getsmk', 'getsmk');
-            Route::post('/syncOss', 'syncOss');
         });
     });
     // get certificate
     Route::get('/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
 });
+
+Route::controller(OssController::class)->group(function(){
+    Route::get('/syncOss', 'syncOss');
+});
+
 
 Route::controller(LaporanTahunanController::class)->group(function () {
     Route::group(['prefix' => 'laporan-tahunan'], function () {

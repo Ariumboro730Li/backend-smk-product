@@ -115,7 +115,7 @@ class AuthController extends Controller
             'sub' => $user->id,
             'username' => $user->username,
             'name' => $user->name,
-            'role' => 'perusahaan',
+            'role' => 'company',
             'iat' => time(), // Waktu token dibuat
         ];
         $token = $this->generateToken($payload);
@@ -141,7 +141,7 @@ class AuthController extends Controller
         // Periksa apakah token memiliki role 'company'
         $payload = JWTAuth::parseToken()->getPayload();
 
-        if ($payload->get('role') == 'perusahaan') {
+        if ($payload->get('role') == 'company') {
             return response()->json([
                 'status_code' => HttpStatusCodes::HTTP_OK,
                 'error' => false,
@@ -181,11 +181,11 @@ class AuthController extends Controller
     ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
 }
 
-    public function logout()
-    {
-        JWTAuth::invalidate(JWTAuth::getToken());
-        return response()->json(['message' => 'Successfully logged out']);
-    }
+    // public function logout()
+    // {
+    //     JWTAuth::invalidate(JWTAuth::getToken());
+    //     return response()->json(['message' => 'Successfully logged out']);
+    // }
 
     public static function generateToken($payload)
     {
@@ -197,5 +197,30 @@ class AuthController extends Controller
 
         // Encode token JWT
         return JWT::encode($payload, $key, 'HS256');
+    }
+
+    public function logout(Request $request)
+    {
+        // Ambil token dari header Authorization
+        $token = JWTAuth::getToken();
+
+        if (!$token) {
+            return response()->json([
+                'status_code' => 400,
+                'error' => true,
+                'message' => 'Token tidak ditemukan.'
+            ], 400);
+        }
+
+        // Buat token tidak valid
+        JWTAuth::invalidate($token);
+
+        dd(JWTAuth::getToken());
+
+        return response()->json([
+            'status_code' => 200,
+            'error' => false,
+            'message' => 'Logout berhasil. Token telah dihapus.',
+        ], 200);
     }
 }

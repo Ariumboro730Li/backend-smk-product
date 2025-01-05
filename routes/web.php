@@ -34,11 +34,12 @@ Route::get('/healthz', function () {
 
 Route::post('login/internal', [AuthController::class, 'login']);
 Route::post('login/company', [AuthController::class, 'loginCompany']);
+// Route::post('logout', [AuthController::class, 'logout']);
 Route::post('register', [RegisterController::class, 'register']);
 
 Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
-    Route::get('auth/me', [AuthController::class, 'me'])->middleware('auth.jwt');
-    Route::post('logout', [AuthController::class, 'logout'])->middleware('auth.jwt');
+    Route::get('auth/me', [AuthController::class, 'me']);
+    Route::post('logout', [AuthController::class, 'logout']);
     Route::get('test', function () {
         return response()->json([
             'status_code'  => HttpStatusCodes::HTTP_OK,

@@ -35,7 +35,8 @@ class RouteServiceProvider extends ServiceProvider
                 'web',
                 // 'is_auth',
                 // 'app_type_user:internal'
-                'check.token', 'auth.jwt',
+                'check.token',
+                'auth.jwt',
                 'role:internal'
             ])
             ->name((string) "internal.")
@@ -46,8 +47,9 @@ class RouteServiceProvider extends ServiceProvider
                 'web',
                 // 'is_auth',
                 // 'app_type_user:perusahaan'
-                'check.token', 'auth.jwt',
-                'role:perusahaan'
+                'check.token',
+                // 'auth.jwt',
+                'role:company'
             ])
             ->name((string) "company.")
             ->prefix((string) "/company")

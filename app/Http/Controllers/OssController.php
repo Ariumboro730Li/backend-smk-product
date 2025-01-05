@@ -10,9 +10,13 @@ use App\Models\StandardIndustrialClassification;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class OssController extends Controller
 {
+
+    protected $is_exist = true;
+
     public function inqueryNib(Request $request){
         $validator = Validator::make($request->all(), [
             "nib" => "required|string",
@@ -26,14 +30,17 @@ class OssController extends Controller
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
 
-        $checkNIBExist = Company::where('nib','=',$request->nib)->first();
-        if($checkNIBExist) {
-            return response()->json([
-                'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
-                'error'         => true,
-                'message'       => "Perusahaan telah terdaftar di sistem"
-            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        if($this->is_exist){
+            $checkNIBExist = Company::where('nib','=',$request->nib)->first();
+            if($checkNIBExist) {
+                return response()->json([
+                    'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
+                    'error'         => true,
+                    'message'       => "Perusahaan telah terdaftar di sistem"
+                ], HttpStatusCodes::HTTP_BAD_REQUEST);
+            }
         }
+
 
         $setting = Setting::where('name', 'oss')->first();
         if(!$setting){
@@ -135,5 +142,36 @@ class OssController extends Controller
                 ], HttpStatusCodes::HTTP_BAD_REQUEST);
             }
         }
+    }
+
+    public function syncOss() {
+        $this->is_exist = false;
+
+        $user = auth('company')->user();
+
+        $request = new Request();
+        $request->merge(['nib' => $user->nib]);
+
+        $inqueryNib = $this->inqueryNib($request);
+
+        if($inqueryNib->status() == 200){
+            $dataNib = $inqueryNib->getData()->data;
+        } else {
+            return $inqueryNib;
+        }
+
+        $user->nib = $dataNib->nib;
+        $user->company_phone_number = $dataNib->nomor_telpon_perseroan;
+        $user->name = $dataNib->nama_perseroan;
+        $user->email = $dataNib->email_perusahaan;
+        $user->pic_name = $dataNib->penanggung_jwb[0]->nama_penanggung_jwb;
+        $user->pic_phone = $dataNib->penanggung_jwb[0]->no_hp_penanggung_jwb == "-" ? null : $dataNib->penanggung_jwb[0]->no_hp_penanggung_jwb;
+        $user->save();
+
+        return response()->json([
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'error' => false,
+            'message' => 'Data berhasil di sinkronisasi.'
+        ], HttpStatusCodes::HTTP_OK);
     }
 }
