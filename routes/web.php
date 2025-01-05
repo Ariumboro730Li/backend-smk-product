@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpStatusCodes;
+use App\Http\Controllers\OssController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
@@ -42,3 +43,10 @@ Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
         ], HttpStatusCodes::HTTP_OK);
     });
 });
+
+Route::controller(OssController::class)->group(function () {
+    Route::group(['prefix' => 'oss'], function () {
+        Route::get('/inquery-nib', 'inqueryNib');
+    });
+});
+

@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\HttpStatusCodes;
+use App\Http\Controllers\OssController;
 use App\Http\Controllers\SettingController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;

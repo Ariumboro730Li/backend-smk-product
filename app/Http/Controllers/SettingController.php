@@ -91,7 +91,7 @@ class SettingController extends Controller
                 'nama' => strip_tags($request->nama),
                 'deskripsi' => strip_tags($request->deskripsi),
                 'email' => strip_tags($request->email),
-                'whatsapp' => strip_tags($request->no_wa),
+                'whatsapp' => strip_tags($request->whatsapp),
                 'alamat' => strip_tags($request->alamat),
                 'provinsi' => strip_tags($request->provinsi),
                 'kota' => strip_tags($request->kota),
