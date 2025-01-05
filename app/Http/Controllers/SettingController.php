@@ -11,12 +11,37 @@ class SettingController extends Controller
 {
 
     public function list(Request $request){
-        $settings = Setting::all();
+        $validator = Validator::make($request->all(), [
+            'page' => 'required|integer',
+            'limit' => 'required|integer|max:50',
+            'ascending' => 'nullable|boolean',
+        ]);
+
+        if($validator->fails()){
+            return response()->json([
+                'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
+                'error'         => true,
+                'message'       => $validator->errors()->all()[0]
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        $query = Setting::query();
+        $query->orderBy('created_at', $request->ascending ? 'asc' : 'desc');
+        $data = $query->paginate($request->limit);
+        $meta = [
+            'total'        => $data->total(),
+            'count'        => $data->count(),
+            'per_page'     => $data->perPage(),
+            'current_page' => $data->currentPage(),
+            'total_pages'  => $data->lastPage()
+        ];
+
         return response()->json([
-            'status_code'   => HttpStatusCodes::HTTP_OK,
-            'error'         => false,
-            'message'       => 'Berhasil mengambil setting.',
-            'data'          => $settings
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' =>  $data->toArray()['data'],
+            'pagination' => $meta
         ], HttpStatusCodes::HTTP_OK);
     }
 
@@ -66,7 +91,7 @@ class SettingController extends Controller
             // "no_wa" => "required|string",
             "whatsapp" => [
                 'required',
-                'regex:/^62[0-9]{9,13}$/',
+                'regex:/^(62|0)[0-9]{6,13}$/'
             ],
             "alamat" => "required|string",
             "provinsi" => "required|string",
@@ -74,7 +99,7 @@ class SettingController extends Controller
             "logo_favicon" => "required|string",
             "logo_aplikasi" => "required|string",
         ], [
-            'whatsapp.regex' => 'Nomor WhatsApp harus diawali dengan 62 dan hanya terdiri dari angka.', // Pesan error kustom
+            'whatsapp.regex' => 'Nomor WhatsApp harus diawali dengan 62 | 0 dan hanya terdiri dari angka.', // Pesan error kustom
         ]);
 
         if($validator->fails()){

@@ -212,8 +212,9 @@ Route::group(['prefix' => 'admin-panel'], function () {
         });
     });
 
-
     Route::controller(OssController::class)->group(function () {
         Route::get('/syncOss', 'syncOssInternal');
     });
+
+
 });
