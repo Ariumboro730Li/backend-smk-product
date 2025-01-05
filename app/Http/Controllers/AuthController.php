@@ -215,8 +215,6 @@ class AuthController extends Controller
         // Buat token tidak valid
         JWTAuth::invalidate($token);
 
-        dd(JWTAuth::getToken());
-
         return response()->json([
             'status_code' => 200,
             'error' => false,
