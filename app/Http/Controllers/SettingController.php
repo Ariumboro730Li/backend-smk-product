@@ -26,6 +26,11 @@ class SettingController extends Controller
         }
 
         $query = Setting::query();
+
+        $query->when($request->search, function($q) use ($request){
+            $q->where('name', 'like', "%$request->search%");
+        });
+
         $query->orderBy('created_at', $request->ascending ? 'asc' : 'desc');
         $data = $query->paginate($request->limit);
         $meta = [

@@ -3,6 +3,7 @@
 use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\OssController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserManagementController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\MasterData\CityController;
@@ -207,6 +208,7 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::group(['prefix' => 'setting'], function () {
             Route::get('/list', 'list');
             Route::get('/find', 'get');
+            Route::get('/detail', 'get');
             Route::post('/oss', 'oss');
             Route::post('/aplikasi', 'aplikasi');
         });
@@ -216,5 +218,17 @@ Route::group(['prefix' => 'admin-panel'], function () {
         Route::get('/syncOss', 'syncOssInternal');
     });
 
-
+    Route::controller(UserManagementController::class)->group(function () {
+        Route::group(['prefix' => 'user-management'], function () {
+            Route::get('/list', 'list');
+            Route::get('/detail', 'detail');
+            Route::post('/add', 'store');
+            Route::get('/active', 'active');
+            Route::get('/inactive', 'inactive');
+            Route::post('/active', 'active');
+            Route::post('/inactive', 'inactive');
+            Route::post('/update', 'update');
+            Route::post('/destroy', 'destroy');
+        });
+    });
 });
