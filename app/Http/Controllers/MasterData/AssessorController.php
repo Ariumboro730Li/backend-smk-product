@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 
-class   AssessorController extends Controller
+class  AssessorController extends Controller
 {
     public function index(Request $request)
     {

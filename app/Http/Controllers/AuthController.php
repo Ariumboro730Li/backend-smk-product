@@ -3,23 +3,57 @@
 namespace App\Http\Controllers;
 
 use App\Constants\HttpStatusCodes;
+use App\Models\Company;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Firebase\JWT\JWT;
-use Firebase\JWT\Key;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
-    public function login(Request $request)
-    {
-        // Validasi input (opsional, tambahkan jika belum)
-        $request->validate([
-            'username' => 'required|string',
+
+    public function login(Request $request){
+        $validator = Validator::make($request->all(), [
+            'email' => 'string',
+            'username' => 'string',
             'password' => 'required|string',
         ]);
 
+        if($validator->fails()){
+            return response()->json([
+                'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
+                'error'         => true,
+                'message'       => $validator->errors()->all()[0]
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        if(!$request->email && !$request->username){
+            return response()->json([
+                'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
+                'error'         => true,
+                'message'       => 'Email atau username harus diisi'
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
         // Ambil user berdasarkan email
-        $user = \App\Models\User::where('username', $request->username)->first();
+        if($request->email){
+            $role = 'internal';
+            $user = User::where('email', $request->email)->first();
+        } else {
+            $role = 'internal';
+            $user = User::where('username', $request->username)->first();
+        }
+
+        if(!$user){
+            if($request->email){
+                $role = 'company';
+                $user = Company::where('email', $request->email)->first();
+            } else {
+                $role = 'company';
+                $user = Company::where('username', $request->username)->first();
+            }
+        }
 
         // Jika email tidak ditemukan, kembalikan error
         if (!$user) {
@@ -40,21 +74,36 @@ class AuthController extends Controller
         }
 
         // Buat token JWT
-        $credentials = $request->only('username', 'password');
-        if (!auth()->attempt($credentials)) {
-            return response()->json([
-                'status_code'  => HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR,
-                'error'   => true,
-                'message' => 'Terjadi kesalahan saat mencoba login.'
-            ], HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR); // 500 untuk error server
+        if($request->email){
+            $credentials = $request->only('email', 'password');
+        } else {
+            $credentials = $request->only('username', 'password');
         }
 
-          // Buat payload untuk token
+        if($role == "internal"){
+            if (!auth()->attempt($credentials)) {
+                return response()->json([
+                    'status_code'  => HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR,
+                    'error'   => true,
+                    'message' => 'Terjadi kesalahan saat mencoba login.'
+                ], HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR); // 500 untuk error server
+            }
+        } else {
+            if (!auth('company')->attempt($credentials)) {
+                return response()->json([
+                    'status_code'  => HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR,
+                    'error'   => true,
+                    'message' => 'Terjadi kesalahan saat mencoba login.'
+                ], HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR); // 500 untuk error server
+            }
+        }
+
+        // Buat payload untuk token
         $payload = [
             'sub' => $user->id,
             'username' => $user->username,
             'name' => $user->name,
-            'role' => 'internal',
+            'role' => $role,
             'iat' => time(), // Waktu token dibuat
         ];
         $token = $this->generateToken($payload);
@@ -69,71 +118,8 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token
         ], 200);
+
     }
-
-    public function loginCompany(Request $request)
-    {
-        // Validasi input (opsional, tambahkan jika belum)
-        $request->validate([
-            'username' => 'required|string',
-            'password' => 'required|string',
-        ]);
-
-        // Ambil user berdasarkan email
-        $user = \App\Models\Company::where('username', $request->username)->first();
-
-        // Jika email tidak ditemukan, kembalikan error
-        if (!$user) {
-            return response()->json([
-                'status_code'  => HttpStatusCodes::HTTP_NOT_FOUND,
-                'error' => true,
-                'message' => 'Username tidak terdaftar.'
-            ], HttpStatusCodes::HTTP_NOT_FOUND); // 404 untuk not found
-        }
-
-        // Jika password tidak cocok
-        if (!\Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'status_code'  => HttpStatusCodes::HTTP_UNAUTHORIZED,
-                'error' => true,
-                'message' => 'Username tidak terdaftar.'
-            ], HttpStatusCodes::HTTP_UNAUTHORIZED); // 401 untuk unauthorized
-        }
-
-        // Buat token JWT
-        $credentials = $request->only('username', 'password');
-        if (!auth('company')->attempt($credentials)) {
-            return response()->json([
-                'status_code'  => HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR,
-                'error'   => true,
-                'message' => 'Terjadi kesalahan saat mencoba login.'
-            ], HttpStatusCodes::HTTP_INTERNAL_SERVER_ERROR); // 500 untuk error server
-        }
-
-          // Buat payload untuk token
-        $payload = [
-            'sub' => $user->id,
-            'username' => $user->username,
-            'name' => $user->name,
-            'role' => 'company',
-            'iat' => time(), // Waktu token dibuat
-        ];
-        $token = $this->generateToken($payload);
-
-        $user = auth('company')->user();
-        $request->merge([
-            'app_user' => $user
-        ]);
-
-        // Kembalikan token jika login berhasil
-        return response()->json([
-            'error' => false,
-            'message' => 'Login berhasil.',
-            'user' => $user,
-            'token' => $token
-        ], 200);
-    }
-
     public function me()
     {
         $user = JWTAuth::parseToken()->authenticate();

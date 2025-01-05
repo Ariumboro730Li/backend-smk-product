@@ -36,7 +36,7 @@ class RouteServiceProvider extends ServiceProvider
                 // 'is_auth',
                 // 'app_type_user:internal'
                 'check.token',
-                'auth.jwt',
+                // 'auth.jwt',
                 'role:internal'
             ])
             ->name((string) "internal.")

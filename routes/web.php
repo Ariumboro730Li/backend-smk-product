@@ -32,8 +32,7 @@ Route::get('/healthz', function () {
     return 1;
 });
 
-Route::post('login/internal', [AuthController::class, 'login']);
-Route::post('login/company', [AuthController::class, 'loginCompany']);
+Route::post('login', [AuthController::class, 'login']);
 // Route::post('logout', [AuthController::class, 'logout']);
 Route::post('register', [RegisterController::class, 'register']);
 
