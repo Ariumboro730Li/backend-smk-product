@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Constants\HttpStatusCodes;
 use App\Models\Company;
 use App\Models\User;
+use DB;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Firebase\JWT\JWT;
@@ -15,8 +16,7 @@ class AuthController extends Controller
 
     public function login(Request $request){
         $validator = Validator::make($request->all(), [
-            'email' => 'string',
-            'username' => 'string',
+            'email' => 'required|string',
             'password' => 'required|string',
         ]);
 
@@ -32,26 +32,43 @@ class AuthController extends Controller
             return response()->json([
                 'status_code'   => HttpStatusCodes::HTTP_BAD_REQUEST,
                 'error'         => true,
-                'message'       => 'Email atau username harus diisi'
+                'message'       => 'Email harus diisi'
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
 
         // Ambil user berdasarkan email
-        if($request->email){
+        $roleUserInternal = null;
+        $role = 'internal';
+        $user = User::where('email', $request->email)->first();
+        if(!$user){
             $role = 'internal';
-            $user = User::where('email', $request->email)->first();
-        } else {
-            $role = 'internal';
-            $user = User::where('username', $request->username)->first();
+            $request->merge([
+                'username' => $request->email
+            ]);
+            $user = User::where('username', $request->email)->first();
+        }
+        if($user){
+            $roleModel = DB::table('model_has_roles')->where('model_id', $user->id)
+            ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+            ->first();
+            if($roleModel){
+                $roleUserInternal = $roleModel->name;
+            }
         }
 
         if(!$user){
-            if($request->email){
+            $role = 'company';
+            $oldReq = $request->all();
+            unset($oldReq['username']);
+            $request = new Request($oldReq);
+
+            $user = Company::where('email', $request->email)->first();
+            if(!$user){
                 $role = 'company';
-                $user = Company::where('email', $request->email)->first();
-            } else {
-                $role = 'company';
-                $user = Company::where('username', $request->username)->first();
+                $request->merge([
+                    'username' => $request->email
+                ]);
+                $user = Company::where('username', $request->email)->first();
             }
         }
 
@@ -74,10 +91,10 @@ class AuthController extends Controller
         }
 
         // Buat token JWT
-        if($request->email){
-            $credentials = $request->only('email', 'password');
-        } else {
+        if($request->username){
             $credentials = $request->only('username', 'password');
+        } else {
+            $credentials = $request->only('email', 'password');
         }
 
         if($role == "internal"){
@@ -104,6 +121,7 @@ class AuthController extends Controller
             'username' => $user->username,
             'name' => $user->name,
             'role' => $role,
+            'internal_role' => $roleUserInternal,
             'iat' => time(), // Waktu token dibuat
         ];
         $token = $this->generateToken($payload);
@@ -139,6 +157,7 @@ class AuthController extends Controller
                         'username' => $payload->get('username'),
                         'name' => $payload->get('name'),
                         'role' => $payload->get('role'),
+                        'internal_role' => $payload->get('internal_role'),
                         'iat' => $payload->get('iat'),
                         'exp' => $payload->get('exp'),
                         'nbf'  => $payload->get('nbf'),
@@ -159,6 +178,7 @@ class AuthController extends Controller
                     'username' => $payload->get('username'),
                     'name' => $payload->get('name'),
                     'role' => $payload->get('role'),
+                    'internal_role' => $payload->get('internal_role'),
                     'iat' => $payload->get('iat'),
                     'exp' => $payload->get('exp'),
                     'nbf'  => $payload->get('nbf'),
