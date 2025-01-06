@@ -46,7 +46,6 @@ class AuthController extends Controller
                 'username' => $request->email
             ]);
             $user = User::where('username', $request->email)->first();
-
         }
         if($user){
             $roleModel = DB::table('model_has_roles')->where('model_id', $user->id)
@@ -59,6 +58,10 @@ class AuthController extends Controller
 
         if(!$user){
             $role = 'company';
+            $oldReq = $request->all();
+            unset($oldReq['username']);
+            $request = new Request($oldReq);
+
             $user = Company::where('email', $request->email)->first();
             if(!$user){
                 $role = 'company';
