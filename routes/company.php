@@ -7,6 +7,7 @@ use App\Http\Controllers\Company\SertifikatSMKController;
 use App\Http\Controllers\Company\LaporanTahunanController;
 use App\Http\Controllers\Company\DashboardController;
 use App\Http\Controllers\Company\PengajuanSertifikatController;
+use App\Http\Controllers\Company\HistoryPengajuanController;
 use App\Http\Controllers\FileController;
 
 /*
@@ -23,14 +24,16 @@ use App\Http\Controllers\FileController;
 Route::group(['prefix' => 'documents'], function () {
 
     // submission certificate SMK
-    Route::controller(PengajuanSertifikatController::class)->group(function () {
-        Route::group(['prefix' => 'submission'], function () {
+    Route::group(['prefix' => 'submission'], function () {
+        Route::controller(PengajuanSertifikatController::class)->group(function () {
             Route::get('/detail', 'detail');
             Route::get('/index', 'index');
             Route::post('/update', 'update');
             Route::post('/store', 'store');
             Route::get('/active-submmision', 'getCertifiateActive');
         });
+
+        Route::get('/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
     });
 
     // get certificate
