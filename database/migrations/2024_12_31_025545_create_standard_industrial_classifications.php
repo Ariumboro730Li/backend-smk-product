@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('standard_industrial_classifications', function (Blueprint $table) {
             $table->id();
-            $table->string('kbli')->nullable();
-            $table->string('name')->nullable();
+            $table->string('kbli');
+            $table->string('name');
             $table->string('description')->nullable();
             $table->timestamps();
             $table->softDeletes();

@@ -13,12 +13,11 @@ return new class extends Migration
     {
         Schema::create('signers', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('work_unit_id')->nullable();
-            $table->string('name')->nullable();
-            $table->string('position')->nullable();
-            $table->string('identity_number')->nullable();
-            $table->string('identity_type')->nullable();
-            $table->boolean('is_active')->default(true)->nullable();
+            $table->string('name');
+            $table->string('position');
+            $table->string('identity_number');
+            $table->string('identity_type');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

@@ -13,16 +13,16 @@ return new class extends Migration
     {
         Schema::create('certificate_request_assessments', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('certificate_request_id')->nullable();
-            $table->bigInteger('assessor')->nullable();
-            $table->json('element_properties')->nullable();
-            $table->json('answers')->nullable();
+            $table->bigInteger('certificate_request_id');
+            $table->uuid('assessor')->nullable();
+            $table->json('element_properties');
+            $table->json('answers');
             $table->json('assessments')->nullable();
-            $table->enum('status', ['rejected','draft','request','not_passed_assessment','submission_revision','passed_assessment','not_passed_assessment_verification','assessment_revision','passed_assessment_verification'])->nullable();
+            $table->enum('status', ['rejected','draft','request','not_passed_assessment','submission_revision','passed_assessment','not_passed_assessment_verification','assessment_revision','passed_assessment_verification']);
             $table->longText('validation_notes')->nullable();
             $table->longText('rejected_note')->nullable();
             $table->integer('revision')->nullable();
-            $table->boolean('is_active')->default(true)->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

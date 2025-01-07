@@ -13,17 +13,17 @@ return new class extends Migration
     {
         Schema::create('certificate_smks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('certificate_request_id')->nullable();
-            $table->bigInteger('company_id')->nullable();
-            $table->text('certificate_file')->nullable();
-            $table->date('publish_date')->nullable();
+            $table->bigInteger('certificate_request_id');
+            $table->bigInteger('company_id');
+            $table->text('certificate_file');
+            $table->date('publish_date');
             $table->date('expired_date')->nullable();
             $table->text('rov_file')->nullable();
             $table->text('sk_file')->nullable();
             $table->string('number_of_certificate')->nullable();
             $table->string('certificate_digital_url')->nullable();
             $table->string('sign_by')->nullable();
-            $table->boolean('is_active')->default(true)->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

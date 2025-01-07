@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('assessors', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->nullable();
-            $table->date('start_date')->nullable();
-            $table->string('certificate_number')->nullable();
-            $table->boolean('status')->default(false)->nullable();
+            $table->uuid('user_id');
+            $table->date('start_date');
+            $table->string('certificate_number');
+            $table->boolean('status')->default(false);
             $table->timestamps();
         });
     }

@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('dirjens', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('user_id')->nullable();
+            $table->uuid('user_id');
             $table->date('start_date')->nullable();
             $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();

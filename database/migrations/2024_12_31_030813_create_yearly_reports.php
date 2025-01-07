@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('yearly_reports', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('company_id')->nullable();
-            $table->integer('year')->nullable();
+            $table->bigInteger('company_id');
+            $table->integer('year');
             $table->bigInteger('monitoring_element_id')->nullable();
             $table->enum('status', ['request','disposition','not_passed','revision','verified','rejected','cancelled'])->nullable();
             $table->bigInteger('disposition_by')->nullable();

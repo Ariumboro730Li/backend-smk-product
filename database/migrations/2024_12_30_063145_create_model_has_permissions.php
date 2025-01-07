@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('model_has_permissions', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('permission_id')->nullable();
-            $table->string('model_type')->nullable();
-            $table->bigInteger('model_id')->nullable();
+            $table->bigInteger('permission_id');
+            $table->uuid('model_id');
             $table->timestamps();
         });
     }

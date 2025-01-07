@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('cities', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('province_id')->nullable();
-            $table->string('name')->nullable();
-            $table->string('administrative_code')->nullable();
+            $table->bigInteger('province_id');
+            $table->string('name');
+            $table->string('administrative_code');
             $table->timestamps();
         });
     }

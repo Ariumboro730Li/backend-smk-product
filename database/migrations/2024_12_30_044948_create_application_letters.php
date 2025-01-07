@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('application_letters', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('certificate_request_id')->nullable();
-            $table->string('number_of_application_letter')->nullable();
+            $table->bigInteger('certificate_request_id');
+            $table->string('number_of_application_letter');
             $table->date('date_of_letter')->nullable();
             $table->text('file')->nullable();
             $table->timestamps();

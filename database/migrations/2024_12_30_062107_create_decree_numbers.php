@@ -13,8 +13,7 @@ return new class extends Migration
     {
         Schema::create('decree_numbers', function (Blueprint $table) {
             $table->id();
-            $table->string('decree_number')->nullable();
-            $table->bigInteger('work_unit_id')->nullable();
+            $table->string('decree_number');
             $table->boolean('is_active')->default(true)->nullable();
             $table->timestamps();
             $table->softDeletes();

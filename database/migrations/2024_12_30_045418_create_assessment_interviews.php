@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('assessment_interviews', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('certificate_request_id')->nullable();
-            $table->bigInteger('assessor_head')->nullable();
-            $table->bigInteger('assessor_1')->nullable();
-            $table->bigInteger('assessor_2')->nullable();
-            $table->enum('interview_type', ['online', 'offline'])->nullable();
+            $table->bigInteger('certificate_request_id');
+            $table->uuid('assessor_head');
+            $table->uuid('assessor_1')->nullable();
+            $table->uuid('assessor_2')->nullable();
+            $table->enum('interview_type', ['online', 'offline']);
             $table->dateTime('schedule')->nullable();
             $table->string('location')->nullable();
             $table->string('notes')->nullable();
@@ -25,8 +25,8 @@ return new class extends Migration
             $table->json('photos_of_event')->nullable();
             $table->json('photos_of_attendance_list')->nullable();
             $table->json('name_of_participants')->nullable();
-            $table->boolean('is_active')->default(true)->nullable();
-            $table->enum('status', ['scheduling','not_pass','completed'])->nullable();
+            $table->boolean('is_active')->default(true);
+            $table->enum('status', ['scheduling','not_pass','completed']);
             $table->timestamps();
         });
     }

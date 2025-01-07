@@ -13,14 +13,14 @@ return new class extends Migration
     {
         Schema::create('notifications', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('topic')->nullable();
-            $table->string('type')->nullable();
-            $table->bigInteger('user_id')->nullable();
+            $table->string('topic');
+            $table->string('type');
+            $table->uuid('user_id');
             $table->string('path_url')->nullable();
-            $table->string('title')->nullable();
+            $table->string('title');
             $table->string('description')->nullable();
             $table->json('data')->nullable();
-            $table->dateTime('delivery_at')->nullable();
+            $table->dateTime('delivery_at');
             $table->dateTime('read_at')->nullable();
             $table->timestamps();
         });

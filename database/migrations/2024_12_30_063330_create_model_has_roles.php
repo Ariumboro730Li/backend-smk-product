@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('model_has_roles', function (Blueprint $table) {
             $table->id();
             $table->bigInteger('role_id')->nullable();
-            $table->bigInteger('model_id')->nullable();
-            $table->string('model_type')->nullable();
+            $table->uuid('model_id')->nullable();
             $table->timestamps();
         });
     }

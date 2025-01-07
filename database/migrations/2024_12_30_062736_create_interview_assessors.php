@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('interview_assessors', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('assessment_interview_id')->nullable();
-            $table->bigInteger('assessor')->nullable();
-            $table->bigInteger('disposition_by')->nullable();
+            $table->bigInteger('assessment_interview_id');
+            $table->uuid('assessor');
+            $table->bigInteger('disposition_by');
             $table->timestamps();
             $table->softDeletes();
         });

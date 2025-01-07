@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('yearly_report_logs', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('company_id')->nullable();
-            $table->bigInteger('yearly_report_id')->nullable();
-            $table->integer('year')->nullable();
+            $table->bigInteger('company_id');
+            $table->bigInteger('yearly_report_id');
+            $table->integer('year');
             $table->date('due_date')->nullable();
             $table->boolean('is_completed')->nullable();
             $table->timestamps();

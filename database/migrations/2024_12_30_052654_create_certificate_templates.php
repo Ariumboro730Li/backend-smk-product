@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('certificate_templates', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('work_unit_id')->nullable();
-            $table->longText('content')->nullable();
-            $table->boolean('is_active')->default(true)->nullable();
+            $table->longText('content');
+            $table->boolean('is_active')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });
