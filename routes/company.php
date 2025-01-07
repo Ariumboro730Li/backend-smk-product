@@ -7,6 +7,7 @@ use App\Http\Controllers\Company\SertifikatSMKController;
 use App\Http\Controllers\Company\LaporanTahunanController;
 use App\Http\Controllers\Company\DashboardController;
 use App\Http\Controllers\Company\PengajuanSertifikatController;
+use App\Http\Controllers\Company\HistoryPengajuanController;
 use App\Http\Controllers\FileController;
 
 /*
@@ -20,16 +21,28 @@ use App\Http\Controllers\FileController;
 |
 */
 
+Route::group(['prefix' => 'documents'], function () {
 
-Route::get('documents/submission/detail', [PengajuanSertifikatController::class, 'detail']);
-Route::get('documents/submission/index', [PengajuanSertifikatController::class, 'index']);
-Route::post('documents/submission/update', [PengajuanSertifikatController::class, 'update']);
-Route::post('documents/submission/store', [PengajuanSertifikatController::class, 'store']);
-Route::get('documents/submission/active-submmision', [PengajuanSertifikatController::class, 'getCertifiateActive']);
+    // submission certificate SMK
+    Route::group(['prefix' => 'submission'], function () {
+        Route::controller(PengajuanSertifikatController::class)->group(function () {
+            Route::get('/detail', 'detail');
+            Route::get('/index', 'index');
+            Route::post('/update', 'update');
+            Route::post('/store', 'store');
+            Route::get('/active-submmision', 'getCertifiateActive');
+        });
 
-Route::get('documents/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
-Route::get('documents/smk-element', [SertifikatSMKController::class, 'getSmkElement']);
-Route::post('documents/upload-file', [FileController::class, 'uploadFile']);
+        Route::get('/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
+    });
+
+    // get certificate
+    Route::get('/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
+    // get smk element
+    Route::get('/smk-element', [SertifikatSMKController::class, 'getSmkElement']);
+    // upload file
+    Route::post('/upload-file', [FileController::class, 'uploadFile']);
+});
 
 Route::get('dashboard/company/getuser', [DashboardController::class, 'getUserDetails']);
 Route::get('dashboard/company/perusahaan', [DashboardController::class, 'perusahaan']);
