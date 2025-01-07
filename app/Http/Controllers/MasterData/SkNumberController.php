@@ -63,11 +63,9 @@ class SkNumberController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'sk_number' => 'required|unique:decree_numbers,decree_number', // Add unique validation rule
-            'satker_id' => 'required',
         ], [
             'sk_number.required' => 'Nomor SK wajib diisi.',
             'sk_number.unique' => 'Nomor SK sudah terdaftar, harap gunakan nomor yang berbeda.',
-            'satker_id.required' => 'Satuan Kerja wajib diisi.',
         ]);
 
         if ($validator->fails()) {
@@ -77,15 +75,12 @@ class SkNumberController extends Controller
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
 
-        // Nonaktifkan SK yang aktif berdasarkan satuan kerja (satker_id)
-        DecreeNumber::where('work_unit_id', $request->satker_id)
-            ->where('is_active', 1)
+        DecreeNumber::where('is_active', 1)
             ->update(['is_active' => 0]);
 
         // Buat SK baru dan set sebagai aktif
         $newData = new DecreeNumber();
         $newData->decree_number = $request->sk_number;
-        $newData->work_unit_id = $request->satker_id;
         $newData->is_active = 1;
         $newData->save();
 
@@ -118,8 +113,7 @@ class SkNumberController extends Controller
     public function update(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'id' => 'required|exists:decree_numbers,id',
-            'satker_id' => 'required|exists:work_units,id',
+            'id' => 'required|exists:decree_numbers,id'
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -129,20 +123,16 @@ class SkNumberController extends Controller
         }
         $newData = DecreeNumber::find($request->id);
 
-        if ($newData->work_unit_id != $request->satker_id) {
-            $existingActiveSk = DecreeNumber::where('work_unit_id', $request->satker_id)
-                ->where('is_active', 1)
-                ->first();
+        $existingActiveSk = DecreeNumber::where('is_active', 1)
+            ->first();
 
-            if ($existingActiveSk) {
-                $newData->is_active = 0;
-            } else {
-                $newData->is_active = 1;
-            }
+        if ($existingActiveSk) {
+            $newData->is_active = 0;
+        } else {
+            $newData->is_active = 1;
         }
 
         $newData->decree_number = $request->sk_number;
-        $newData->work_unit_id = $request->satker_id;
         $newData->save();
 
         return response()->json([

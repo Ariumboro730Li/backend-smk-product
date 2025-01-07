@@ -193,36 +193,9 @@ class YearlyReportController extends Controller
 
     public function getDetail(Request $request)
     {
-        // Ambil WorkUnit berdasarkan ID yang diberikan
-        $authAppData = auth();
-        $user = User::where('id', $authAppData->user()->id)->first();
-        $workunit = WorkUnit::find($user->work_unit_id);
-
-        // Periksa apakah workunit ditemukan
-        if (!$workunit) {
-            return response()->json([
-                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
-                'error' => true,
-                'message' => 'Work Unit tidak ditemukan.'
-            ], HttpStatusCodes::HTTP_NOT_FOUND);
-        }
-
-        // Ambil data provinsi dan kota dari workunit
-        $filterProvince = $workunit->province_id;
-        $filterCity = $workunit->city_id;
-
         // Ambil YearlyReport dengan filter berdasarkan workunit
         $data = YearlyReport::with(['company'])
             ->where('id', $request->id)
-            ->whereHas('company', function ($subQuery) use ($filterProvince, $filterCity, $workunit) {
-                if ($workunit->level === 'Level 2') {
-                    return $subQuery->where('province_id', $filterProvince);
-                }
-
-                if ($workunit->level === 'Level 3') {
-                    return $subQuery->where('city', $filterCity);
-                }
-            })
             ->first();
 
         // Jika tidak ditemukan, kembalikan respons 404

@@ -70,24 +70,8 @@ class DashboardController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Data Tidak Ditemukan',
-                'status_code' => HttpStatusCodes::HTTP_OK,
-                'data' => [
-                    'id' => null,
-                    'certificate_request_id' => null,
-                    'certificate_file' => null,
-                    'publish_date' => null,
-                    'expired_date' => null,
-                    'rov_file' => null,
-                    'sk_file' => null,
-                    'company_id' => null,
-                    'is_active' => null,
-                    'created_at' => null,
-                    'updated_at' => null,
-                    'number_of_certificate' => null,
-                    'sign_by' => null,
-                    'certificate_digital_url' => null,
-                ],
-            ], HttpStatusCodes::HTTP_OK);
+                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
+            ], HttpStatusCodes::HTTP_NOT_FOUND);
         }
 
         // Fetch the certificate data associated with the company
@@ -101,24 +85,8 @@ class DashboardController extends Controller
             return response()->json([
                 'error' => false,
                 'message' => 'Data Tidak Ditemukan',
-                'status_code' => HttpStatusCodes::HTTP_OK,
-                'data' => [
-                    'id' => null,
-                    'certificate_request_id' => null,
-                    'certificate_file' => null,
-                    'publish_date' => null,
-                    'expired_date' => null,
-                    'rov_file' => null,
-                    'sk_file' => null,
-                    'company_id' => null,
-                    'is_active' => null,
-                    'created_at' => null,
-                    'updated_at' => null,
-                    'number_of_certificate' => null,
-                    'sign_by' => null,
-                    'certificate_digital_url' => null,
-                ],
-            ], HttpStatusCodes::HTTP_OK);
+                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
+            ], HttpStatusCodes::HTTP_NOT_FOUND);
         }
 
         // Structure the response data as per the requested format
@@ -147,92 +115,4 @@ class DashboardController extends Controller
             'data' => $responseData,
         ], HttpStatusCodes::HTTP_OK);
     }
-
-    public function syncOss(Request $request)
-    {
-        $Id = $this->getModel($request);
-        // Mengambil data perusahaan berdasarkan ID
-        $company = Company::find($Id);
-
-        // Jika perusahaan tidak ditemukan, kembalikan respons dengan pesan error
-        if (!$company) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Data Perusahaan Tidak Ditemukan',
-                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
-            ], HttpStatusCodes::HTTP_NOT_FOUND);
-        }
-
-        // Memperbarui data perusahaan
-        $company->update($request->only([
-            'name',
-            'username',
-            'phone_number',
-            'email',
-            'nib',
-            'address',
-            'company_phone_number',
-            'pic_name',
-            'pic_phone',
-            'established',
-            'province_id',
-            'city_id',
-        ]));
-
-        // Memperbarui tipe layanan jika ada
-        if ($request->has('service_types')) {
-            $company->serviceTypes()->sync($request->input('service_types.*.id'));
-        }
-
-        // Mengambil kembali data perusahaan yang telah diperbarui
-        $company->load([
-            'province' => function ($query) {
-                $query->select('id', 'name', 'administrative_code');
-            },
-            'city' => function ($query) {
-                $query->select('id', 'name', 'administrative_code');
-            },
-            'serviceTypes',
-        ]);
-
-        // Mempersiapkan data yang akan dikembalikan
-        $responseData = [
-            'id' => $company->id,
-            'name' => $company->name,
-            'username' => $company->username,
-            'phone_number' => $company->phone_number,
-            'email' => $company->email,
-            'email_verified_at' => $company->email_verified_at,
-            'nib' => $company->nib,
-            'nib_file' => $company->nib_file ?? '-',
-            'province_id' => $company->province_id,
-            'city_id' => $company->city_id,
-            'address' => $company->address,
-            'company_phone_number' => $company->company_phone_number,
-            'pic_name' => $company->pic_name,
-            'pic_phone' => $company->pic_phone,
-            'request_date' => $company->request_date,
-            'approved_at' => $company->approved_at,
-            'approved_by' => $company->approved_by,
-            'is_active' => $company->is_active,
-            'created_at' => $company->created_at,
-            'updated_at' => $company->updated_at,
-            'deleted_at' => $company->deleted_at,
-            'established' => $company->established_date,
-            'exist_spionam' => $company->exist_spionam,
-            'province' => $company->province,
-            'city' => $company->city,
-            'service_types' => $company->serviceTypes,
-        ];
-
-        // Kembalikan respons sukses dengan data perusahaan
-        return response()->json([
-            'error' => false,
-            'message' => 'Data telah berhasil disinkronkan',
-            'status_code' => HttpStatusCodes::HTTP_OK,
-            'data' => $responseData,
-        ], HttpStatusCodes::HTTP_OK);
-    }
-
-
 }

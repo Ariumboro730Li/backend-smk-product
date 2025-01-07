@@ -21,7 +21,6 @@ class YearlyReportService
             $this->userWorkUnit = $workUnit;
             $this->workUnitDetail = WorkUnit::find($workUnit);
             $this->coverageService = WorkUnitHasService::select()
-                ->where('work_unit_id', $workUnit)
                 ->get()
                 ->pluck('service_type_id')
                 ->toArray();
@@ -30,27 +29,12 @@ class YearlyReportService
 
     public function getDatatable($request, $company_id=false)
     {
-        $filterProvince = $this->workUnitDetail->province_id;
-        $filterCity = $this->workUnitDetail->city_id;
-
         $data = YearlyReport::with([
             'assessor',
             'company'
         ])
         ->select('yearly_reports.*')
-        ->where('yearly_reports.is_active', true)
-        ->whereHas('company.serviceTypes', function($subQuery) {
-            $subQuery->wherein('service_type_id', $this->coverageService);
-        })
-        ->whereHas('company', function($subQuery) use ($filterProvince, $filterCity) {
-            if ($this->workUnitDetail->level === 'Level 2') {
-                return $subQuery->where('province_id', $filterProvince);
-            }
-
-            if ($this->workUnitDetail->level === 'Level 3') {
-                return $subQuery->where('city', $filterCity);
-            }
-        });
+        ->where('yearly_reports.is_active', true);
 
         if ($company_id) {
             $data = $data->where('yearly_reports.company_id', $company_id);
@@ -129,7 +113,7 @@ class YearlyReportService
             if ($request['assessment_status'] === 'verified') {
 
                 $oldYearlyReportLog = $this->updateYearlyReportYearLog($yearlyReport->company_id, $yearlyReport->year);
-                
+
                 $request['next_year'] = Carbon::parse($oldYearlyReportLog->due_date)->addYears(1)->format('Y');
                 $request['next_due_date'] = Carbon::parse($oldYearlyReportLog->due_date)->addYears(1)->format('Y-m-d');
 
@@ -153,7 +137,7 @@ class YearlyReportService
         return $data;
     }
 
-    
+
     public function getReportYearLogByYearCompanyIDandYear($companyID, $year)
     {
         $yearlyReport = YearlyReportLog::select()

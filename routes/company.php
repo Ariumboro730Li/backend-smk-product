@@ -20,55 +20,29 @@ use App\Http\Controllers\FileController;
 |
 */
 
-Route::group(['prefix' => 'documents'], function () {
 
-    // submission certificate SMK
-    Route::controller(PengajuanSertifikatController::class)->group(function () {
-        Route::group(['prefix' => 'submission'], function () {
-            Route::get('/detail', 'detail');
-            Route::get('/index', 'index');
-            Route::post('/update', 'update');
-            Route::post('/store', 'store');
-            Route::get('/active-submmision', 'getCertifiateActive');
-        });
-    });
+Route::get('documents/submission/detail', [PengajuanSertifikatController::class, 'detail']);
+Route::get('documents/submission/index', [PengajuanSertifikatController::class, 'index']);
+Route::post('documents/submission/update', [PengajuanSertifikatController::class, 'update']);
+Route::post('documents/submission/store', [PengajuanSertifikatController::class, 'store']);
+Route::get('documents/submission/active-submmision', [PengajuanSertifikatController::class, 'getCertifiateActive']);
 
-    // get certificate
-    Route::get('/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
-    // get smk element
-    Route::get('/smk-element', [SertifikatSMKController::class, 'getSmkElement']);
-    // upload file
-    Route::post('/upload-file', [FileController::class, 'uploadFile']);
-});
+Route::get('documents/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
+Route::get('documents/smk-element', [SertifikatSMKController::class, 'getSmkElement']);
+Route::post('documents/upload-file', [FileController::class, 'uploadFile']);
 
-Route::group(['prefix' => 'dashboard'], function () {
+Route::get('dashboard/company/getuser', [DashboardController::class, 'getUserDetails']);
+Route::get('dashboard/company/perusahaan', [DashboardController::class, 'perusahaan']);
+Route::get('dashboard/company/getsmk', [DashboardController::class, 'getsmk']);
+Route::get('dashboard/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
 
-    // submission certificate SMK
-    Route::controller(DashboardController::class)->group(function () {
-        Route::group(['prefix' => 'company'], function () {
-            Route::get('/getuser', 'getUserDetails');
-            Route::get('/perusahaan', 'perusahaan');
-            Route::get('/getsmk', 'getsmk');
-        });
-    });
-    // get certificate
-    Route::get('/certificate', [SertifikatSMKController::class, 'getSmkCertificate']);
-});
+Route::get('laporan-tahunan/monitoring-element', [LaporanTahunanController::class, 'index']);
+Route::get('laporan-tahunan/detail', [LaporanTahunanController::class, 'show']);
+Route::post('laporan-tahunan/store', [LaporanTahunanController::class, 'store']);
+Route::post('laporan-tahunan/update', [LaporanTahunanController::class, 'update']);
+Route::get('laporan-tahunan/get-monitoring-element', [LaporanTahunanController::class, 'getMonitoringElements']);
+Route::get('laporan-tahunan/latest', [LaporanTahunanController::class, 'getLatestReport']);
+Route::post('laporan-tahunan/upload-file', [LaporanTahunanController::class, 'uploadFile']);
+Route::get('laporan-tahunan/getView', [LaporanTahunanController::class, 'getFileUrlToBase64']);
 
-Route::controller(OssController::class)->group(function(){
-    Route::get('/syncOss', 'syncOss');
-});
-
-
-Route::controller(LaporanTahunanController::class)->group(function () {
-    Route::group(['prefix' => 'laporan-tahunan'], function () {
-        Route::get('/monitoring-element', 'index');
-        Route::get('/detail', 'show');
-        Route::post('/store', 'store');
-        Route::post('/update', 'update');
-        Route::get('/get-monitoring-element', 'getMonitoringElements');
-        Route::get('/latest', 'getLatestReport');
-        Route::post('/upload-file', 'uploadFile');
-        Route::get('/getView', 'getFileUrlToBase64');
-    });
-});
+Route::get('/syncOss', [OssController::class, 'syncOss']);

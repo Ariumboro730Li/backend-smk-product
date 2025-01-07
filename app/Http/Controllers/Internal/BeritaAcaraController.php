@@ -15,10 +15,9 @@ use Illuminate\Support\Facades\Validator;
 
 class BeritaAcaraController extends Controller
 {
-    public function generateNumberOfLetter($workUnit)
+    public function generateNumberOfLetter()
     {
         $getTemplateNumberOfLetter = DecreeNumber::select()
-            ->where('work_unit_id', $workUnit)
             ->where('is_active', 1)
             ->first();
 
@@ -99,8 +98,6 @@ class BeritaAcaraController extends Controller
 
     public function create(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-
         $validator = Validator::make($request->all(), [
             'photos_of_event' => 'required',
             'photos_of_attendance_list' => 'required',
@@ -114,7 +111,7 @@ class BeritaAcaraController extends Controller
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
 
-        $generatedNumber = $this->generateNumberOfLetter($workUnit);
+        $generatedNumber = $this->generateNumberOfLetter();
 
         if (is_null($generatedNumber)) {
             return response()->json([

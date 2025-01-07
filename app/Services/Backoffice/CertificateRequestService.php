@@ -28,27 +28,8 @@ use App\Models\WorkUnitHasService;
 
 class CertificateRequestService
 {
-    private $userWorkUnit;
-    private $userHasService;
-
-    public function __construct($workUnit = '')
-    {
-        if ($workUnit) {
-            $this->userWorkUnit = $workUnit;
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-            $this->coverageService = WorkUnitHasService::select()
-                ->where('work_unit_id', $workUnit)
-                ->get()
-                ->pluck('service_type_id')
-                ->toArray();
-        }
-    }
-
     public function getDatatable($request, $company_id=false)
     {
-        $filterProvince = $this->workUnitDetail->province_id;
-        $filterCity = $this->workUnitDetail->city_id;
-
         // dd(11);
         $certificateRequest = CertificateRequest::with([
             'dispositionBy',
@@ -60,19 +41,7 @@ class CertificateRequestService
         ->leftjoin('assessment_interviews', function($join) {
             $join->on('certificate_requests.id', 'certificate_request_id')
                 ->where('assessment_interviews.is_active', true);
-        })->where('certificate_requests.status', '!=', 'draft')
-        ->whereHas('company.serviceTypes', function($subQuery) {
-            $subQuery->wherein('service_type_id', $this->coverageService);
-        })
-        ->whereHas('company', function($subQuery) use ($filterProvince, $filterCity) {
-            if ($this->workUnitDetail->level === 'Level 2') {
-                return $subQuery->where('province_id', $filterProvince);
-            }
-
-            if ($this->workUnitDetail->level === 'Level 3') {
-                return $subQuery->where('city', $filterCity);
-            }
-        });
+        })->where('certificate_requests.status', '!=', 'draft');
 
         if ($company_id) {
             $certificateRequest = $certificateRequest->where('certificate_requests.company_id', $company_id);
@@ -102,8 +71,7 @@ class CertificateRequestService
                 ->orWhere(DB::raw("DATE_PART('year', certificate_requests.created_at) || '00000' || certificate_requests.id"),  'like', '%'. $request['columns'][1]['search']['value'] .'%');
         }
 
-        return DataTables::eloquent($certificateRequest)
-            ->toJson();
+        return DataTables::eloquent($certificateRequest)->toJson();
     }
 
     function generateRegNumber($createdAt, $data) {
@@ -388,9 +356,6 @@ class CertificateRequestService
                 'application_letters.file as file_of_application_letter'
             )
             ->where('certificate_requests.id', $requestID)
-            ->whereHas('company.serviceTypes', function($subQuery) {
-                $subQuery->wherein('service_type_id', $this->coverageService);
-            })
             ->first();
 
         return $data;
@@ -822,6 +787,7 @@ class CertificateRequestService
                     $otherInformation['send_to_company'] = true;
                 }
 
+                $newAssessment = null;
                 if ($oldInterview->head_assessor !== $newInterview->head_assessor) {
                     $employee = ['id' => $newAssessment->head_assessor->id];
                     array_push($newAssessorRecipients, $employee);
@@ -993,7 +959,6 @@ public function getDirjenTTD($id)
     public function getCertificateTemplate()
     {
         $template = CertificateTemplate::select()
-        ->where('work_unit_id', $this->userWorkUnit)
         ->first();
 
         return $template;
@@ -1059,11 +1024,6 @@ public function getDirjenTTD($id)
     public function getSigners($isWorkUnitOnly = false)
     {
         $data = Signer::select();
-
-        if ($isWorkUnitOnly) {
-            $data = $data->where('work_unit_id', $this->userWorkUnit);
-        }
-
         $data = $data->get();
 
         return $data;

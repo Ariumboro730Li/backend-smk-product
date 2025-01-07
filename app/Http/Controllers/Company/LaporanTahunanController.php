@@ -4,15 +4,11 @@ namespace App\Http\Controllers\Company;
 
 use Auth;
 use App\Models\Company;
-use Hidehalo\Nanoid\Client;
-use Illuminate\Support\Str;
 use App\Models\YearlyReport;
 use Illuminate\Http\Request;
 use App\Models\MonitoringElement;
-use Illuminate\Http\JsonResponse;
 use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class LaporanTahunanController extends Controller
@@ -26,7 +22,6 @@ class LaporanTahunanController extends Controller
         $companyID = Company::where('id', $id)->value('id');
 
         $data = $this->getYearlyReportHistory($companyID, $request->input('search'), $request);
-
 
         return response()->json($data->original);
 

@@ -4,11 +4,9 @@ namespace App\Http\Controllers\Internal;
 
 use App\Constants\HttpStatusCodes;
 use App\Jobs\NotificationUser;
-use App\Models\WorkUnit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use App\Models\CertificateRequest;
-use App\Models\WorkUnitHasService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
@@ -18,75 +16,16 @@ use App\Models\User;
 
 class PengajuanSMKPerusahaanController extends Controller
 {
-    private $userWorkUnit;
-    private $workUnitDetail;
-
     private $coverageService;
 
     public function __construct() {}
 
-    private function initializeWorkUnitData(Request $request)
-    {
-        $workUnit = auth()->user()->work_unit_id ?? null;
-
-        // Check if work unit exists
-        if ($workUnit) {
-            $this->userWorkUnit = $workUnit;
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-
-            // If workUnitDetail is null, return an error
-            if (!$this->workUnitDetail) {
-                return false; // Indicate failure
-            }
-
-            $this->coverageService = WorkUnitHasService::where('work_unit_id', $workUnit)
-                ->pluck('service_type_id')
-                ->toArray();
-
-            return true; // Indicate success
-        }
-
-        return false; // Indicate failure
-    }
-
     public function index(Request $request)
     {
-        if (!$this->initializeWorkUnitData($request)) {
-            return response()->json([
-                'error' => true,
-                'message' => 'Satuan kerja tidak di temukan',
-                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
-            ], HttpStatusCodes::HTTP_NOT_FOUND);
-        }
-
         $meta = [
             'orderBy' => $request->ascending ? 'asc' : 'desc',
             'limit' => $request->limit,
         ];
-
-        $filterProvince = $this->workUnitDetail->province_id ?? null;
-        $filterCity = $this->workUnitDetail->city_id ?? null;
-
-        // $certificateRequest = CertificateRequest::with(['dispositionBy', 'dispositionTo', 'company'])
-        //     ->select(
-        //         'certificate_requests.*',
-        //         'assessment_interviews.schedule as schedule_interview',
-        //         'companies.id as company_id',
-        //         'companies.name as company_name',
-        //         DB::raw("CONCAT(YEAR(certificate_requests.created_at), '00000', certificate_requests.id) AS regnumber")
-        //     )
-        //     ->leftJoin('companies', 'certificate_requests.company_id', '=', 'companies.id')
-        //     ->leftJoin('assessment_interviews', function ($join) {
-        //         $join->on('certificate_requests.id', '=', 'assessment_interviews.certificate_request_id')
-        //             ->where('assessment_interviews.is_active', true);
-        //     })
-        //     ->where(function ($query) {
-        //         $query->where('certificate_requests.status', '!=', 'draft')
-        //             ->orWhere('certificate_requests.status', '!=', 'certificate_validation');
-        //     })
-        //     ->whereHas('company.serviceTypes', function ($subQuery) {
-        //         $subQuery->whereIn('service_type_id', $this->coverageService);
-        //     });
 
         // Build the query
         $certificateRequest = CertificateRequest::with(['dispositionBy', 'dispositionTo', 'company', 'company.serviceTypes'])
@@ -102,31 +41,14 @@ class PengajuanSMKPerusahaanController extends Controller
                 $join->on('certificate_requests.id', '=', 'assessment_interviews.certificate_request_id')
                     ->where('assessment_interviews.is_active', true);
             })
-            ->where('certificate_requests.status', '!=', 'draft')
-            ->whereHas('company.serviceTypes', function ($subQuery) {
-                $subQuery->whereIn('service_type_id', $this->coverageService);
-            });
+            ->where('certificate_requests.status', '!=', 'draft');
 
-        // Add province and city filters if applicable
-        if ($this->workUnitDetail) {
-            $certificateRequest->whereHas('company', function ($subQuery) use ($filterProvince, $filterCity) {
-                if ($this->workUnitDetail->level === 'Level 2' && $filterProvince) {
-                    $subQuery->where('province_id', $filterProvince);
-                }
-                if ($this->workUnitDetail->level === 'Level 3' && $filterCity) {
-                    $subQuery->where('city', $filterCity);
-                }
-            });
-        }
 
         // Apply filters from the request
         if ($request->company_id) {
             $certificateRequest->where('certificate_requests.company_id', $request->company_id);
         }
-        $work = auth()->user()->work_unit_id;
 
-        $user = User::select('id', 'name')
-            ->where('work_unit_id', $work);
 
         if (!empty($request->searchByPenilai)) {
             $certificateRequest->where('certificate_requests.disposition_to', $request->searchByPenilai);
@@ -182,29 +104,8 @@ class PengajuanSMKPerusahaanController extends Controller
         ], HttpStatusCodes::HTTP_OK);
     }
 
-
     public function detail(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id ?? null;
-
-        // Check and retrieve work unit details
-        if ($workUnit) {
-            $this->userWorkUnit = $workUnit;
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-
-            if (!$this->workUnitDetail) {
-                return response()->json([
-                    'error' => true,
-                    'message' => 'Work unit not found',
-                    'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
-                ], HttpStatusCodes::HTTP_NOT_FOUND);
-            }
-
-            $this->coverageService = WorkUnitHasService::where('work_unit_id', $workUnit)
-                ->pluck('service_type_id')
-                ->toArray();
-        }
-
         // Validate request
         $validator = Validator::make($request->all(), [
             'id' => 'required|exists:certificate_requests,id',
@@ -269,8 +170,6 @@ class PengajuanSMKPerusahaanController extends Controller
 
         if ($request->has('assessor_head')) {
             $tempCertificateRequest['disposition_by'] = $request->assessor_head;
-
-
 
             $this->updateCertificateRequestDispositionBy($request->id, $tempCertificateRequest);
 
@@ -347,8 +246,6 @@ class PengajuanSMKPerusahaanController extends Controller
             }
         }
 
-
-
         if ($request->isValidAssessment) {
             $newStatus = 'passed_assessment_verification';
 
@@ -404,9 +301,6 @@ class PengajuanSMKPerusahaanController extends Controller
                 'application_letters.file as file_of_application_letter',
             )
             ->where('certificate_requests.id', $requestID)
-            ->whereHas('company.serviceTypes', function ($subQuery) {
-                $subQuery->whereIn('service_type_id', $this->coverageService);
-            })
             ->first();
     }
 
@@ -445,7 +339,6 @@ class PengajuanSMKPerusahaanController extends Controller
     {
 
         $recipients = [];
-
 
         $latestAssessment = $this->getLatestAssessmentByRequestID($request->id);
         if (!empty($tempCertificateRequestAssessment)) {

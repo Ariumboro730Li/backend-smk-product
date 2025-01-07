@@ -20,18 +20,10 @@ class SignerService
         }
     }
 
-    public function getDatatable($request) 
+    public function getDatatable($request)
     {
         $query = Signer::with('workUnit')
             ->select();
-
-        if ($this->workUnitDetail->level != 'Level 1') {
-            $query->where('work_unit_id', $this->workUnitID);
-        }
-
-        if ($request->workunitonly) {
-            $query->where('work_unit_id', $this->workUnitID);
-        }
 
         return DataTables::eloquent($query)
             ->toJson();
@@ -43,12 +35,11 @@ class SignerService
         ->findOrfail($id);
 
         return $data;
-    } 
+    }
 
     public function store($request)
     {
         $newSigner = new Signer();
-        $newSigner->work_unit_id = $request->work_unit_id;
         $newSigner->name = $request->name;
         $newSigner->position = $request->position;
 
@@ -68,7 +59,6 @@ class SignerService
     {
         $newSigner = $this->getDetailByID($id);
 
-        $newSigner->work_unit_id = $request->work_unit_id;
         $newSigner->name = $request->name;
         $newSigner->position = $request->position;
 
@@ -85,7 +75,7 @@ class SignerService
         return $newSigner;
     }
 
-    
+
     public function delete($id)
     {
         $signer = $this->getDetailByID($id);

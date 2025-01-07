@@ -11,8 +11,6 @@ use App\Models\CertificateRequestAssessment;
 use App\Models\CertificateSmk;
 use App\Models\CertificateTemplate;
 use App\Models\Signer;
-use App\Models\WorkUnit;
-use App\Models\WorkUnitHasService;
 use App\Models\YearlyReportLog;
 use App\Services\FileService;
 use Illuminate\Support\Str;
@@ -23,20 +21,6 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class PengesahanDokumenController extends Controller
 {
-    private $userWorkUnit;
-    private $workUnitDetail;
-    private $coverageService;
-
-    public function __construct($workUnit = "")
-    {
-        if ($workUnit) {
-            $this->userWorkUnit = $workUnit;
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-            $this->coverageService = WorkUnitHasService::where('work_unit_id', $workUnit)
-                ->pluck('service_type_id')
-                ->toArray();
-        }
-    }
 
     public function createCertificateRelease(Request $request)
     {
@@ -109,11 +93,10 @@ class PengesahanDokumenController extends Controller
 
         return $oldData;
     }
-    public function getCertificateTemplate($workUnitID)
+    public function getCertificateTemplate()
     {
 
         $template = CertificateTemplate::select()
-            ->where('work_unit_id', $workUnitID)
             ->first();
 
 
@@ -122,11 +105,8 @@ class PengesahanDokumenController extends Controller
     private function generateCertificate($request, $company, $signer)
     {
 
-        $workUnitID = auth()->user()->work_unit_id;
-
-        $workUnitDetail = WorkUnit::find($workUnitID);
         // Mengambil template sertifikat
-        $templateCertificate = $this->getCertificateTemplate($workUnitID);
+        $templateCertificate = $this->getCertificateTemplate();
         $templateHtml = $templateCertificate->content;
 
         // Format sertifikat
@@ -145,7 +125,6 @@ class PengesahanDokumenController extends Controller
             '{{certificate_number}}',
             '{{company_name}}',
             '{{company_address}}',
-            '{{wu_city}}',
             '{{release_date}}',
             '{{signer_position}}',
             '{{signer_name}}',
@@ -159,7 +138,6 @@ class PengesahanDokumenController extends Controller
             $certificateNumberSpan,
             $company->name,
             $company->address,
-            $workUnitDetail->city->name ?? '',
             $publishDate,
             $signer->position,
             $signer->name,
@@ -306,12 +284,6 @@ class PengesahanDokumenController extends Controller
                 'application_letters.file as file_of_application_letter'
             )
             ->where('certificate_requests.id', $requestID)
-            ->whereHas('company.serviceTypes', function ($subQuery) {
-                // Ensure $this->coverageService is valid and not null
-                if (!empty($this->coverageService) && is_array($this->coverageService)) {
-                    $subQuery->wherein('service_type_id', $this->coverageService);
-                }
-            })
             ->first();
 
         // Add an additional check for null or empty collections if needed

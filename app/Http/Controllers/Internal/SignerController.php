@@ -26,17 +26,7 @@ class SignerController extends Controller
 
     public function getDatatable($request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-        $workUnitDetail = WorkUnit::find($workUnit);
-        $query = Signer::with('workUnit')->where('is_active', 1)->select();
-
-        if ($workUnitDetail->level != 'Level 1') {
-            $query->where('work_unit_id', $workUnit);
-        }
-
-        if ($request->workunitonly) {
-            $query->where('work_unit_id', $workUnit);
-        }
+        $query = Signer::where('is_active', 1)->select();
 
         // Retrieve data without DataTables
         $signers = $query->get();
@@ -46,8 +36,6 @@ class SignerController extends Controller
             return [
                 'id' => $signer->id,
                 'name' => $signer->name,
-                'work_unit' => $signer->workUnit->name,
-                // Add other columns as needed
             ];
         });
 

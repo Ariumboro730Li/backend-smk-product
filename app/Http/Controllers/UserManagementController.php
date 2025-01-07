@@ -34,15 +34,10 @@ class UserManagementController extends Controller
             'users.nip',
             'roles.id as role_id',
             'roles.name as role_name',
-            'work_units.id as work_unit_id',
-            'work_units.name as work_unit_name',
-            'work_units.province_id as province_id',
-            'work_units.city_id as city_id',
             'users.created_at'
         )
         ->join('model_has_roles','users.id', '=', 'model_has_roles.model_id')
-        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
-        ->join('work_units', 'work_units.id', 'work_unit_id');
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id');
 
         $query->when($term->id_role != null, function($query) use($term) {
             return $query->where('roles.id','=',$term->id_role);
@@ -79,8 +74,6 @@ class UserManagementController extends Controller
             'username'          => 'required|string|unique:users,username',
             'email'             => 'required|string|email|unique:users,email',
             'nip'               => 'required|string|unique:users,nip',
-            // 'work_unit_id'      => 'required|exists:work_units,id',
-            // 'password'          => 'required|string|max:150'
             'password' => [
                 'required',
                 'string',
@@ -109,14 +102,12 @@ class UserManagementController extends Controller
             'password'          => bcrypt($term->password),
             'is_ministry'       => true,
             'is_active'         => true,
-            'work_unit_id'      => 1,
             'created_at'        => $timeNow,
             'updated_at'        => $timeNow
         ]);
 
         DB::table('model_has_roles')->insert([
             'role_id'          => $term->id_role,
-            'model_type'       => "App\Models\User",
             'model_id'         => $create
         ]);
 
@@ -194,7 +185,6 @@ class UserManagementController extends Controller
             'username'          => 'required|string|unique:users,username,'.$term->id_user,
             'email'             => 'required|string|email|unique:users,email,'.$term->id_user,
             'nip'               => 'required|string|unique:users,nip,'.$term->id_user,
-            // 'work_unit_id'      => 'required|exists:work_units,id',
             'password' => [
                 'required',
                 'string',
@@ -220,7 +210,6 @@ class UserManagementController extends Controller
                 'nip'               => $term->nip,
                 'username'          => $term->username,
                 'email'             => $term->email,
-                'work_unit_id'      => 1,
                 'updated_at'        => $timeNow
             ]);
 
@@ -231,7 +220,6 @@ class UserManagementController extends Controller
                 'username'          => $term->username,
                 'email'             => $term->email,
                 'password'          => bcrypt($term->password),
-                'work_unit_id'      => 1,
                 'updated_at'        => $timeNow
             ]);
         }
@@ -243,7 +231,6 @@ class UserManagementController extends Controller
 
         DB::table('model_has_roles')->insert([
             'role_id'          => $term->id_role,
-            'model_type'       => "App\Models\User",
             'model_id'         => $term->id_user
         ]);
 

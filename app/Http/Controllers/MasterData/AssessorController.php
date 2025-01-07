@@ -11,10 +11,7 @@ class  AssessorController extends Controller
 {
     public function index(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-
-        $data = User::select('id', 'name')
-            ->where('work_unit_id', $workUnit);
+        $data = User::select('id', 'name');
 
         if ($request->role) {
             $data = $data->whereHas('roles', function ($query) use ($request) {

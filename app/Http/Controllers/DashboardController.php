@@ -51,96 +51,36 @@ class DashboardController extends Controller
         ]);
     }
 
-
     public function company(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-        $coverageService = WorkUnitHasService::select()
-            ->where('work_unit_id', $workUnit)
-            ->get()
-            ->pluck('service_type_id')
-            ->toArray();
-        $workUnitDetail = WorkUnit::find($workUnit);
         $dateFrom = $request->date_from;
         $dateTo = $request->date_to;
-        $queryCompany = Company::with('serviceTypes')
-            ->whereHas('serviceTypes', function ($subQuery) use ($coverageService) {
-                $subQuery->wherein('service_type_id', $coverageService);
-            });
+        $queryCompany = Company::with('serviceTypes');
         $queryCompany->whereBetween('created_at', [$dateFrom, $dateTo]);
-        // dd($queryCompany);
-
-        if ($workUnitDetail->level === 'Level 2') {
-            $queryCompany->where('province_id', $workUnitDetail->province_id);
-        }
-
-        if ($workUnitDetail->level === 'Level 3') {
-            $queryCompany->where('city_id', $workUnitDetail->city_id);
-        }
-
         return $queryCompany->get();
     }
 
     public function serviceTypes(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-        $coverageService = WorkUnitHasService::select()
-            ->where('work_unit_id', $workUnit)
-            ->get()
-            ->pluck('service_type_id')
-            ->toArray();
-        $workUnitDetail = WorkUnit::find($workUnit);
-        $filterProvince = $workUnitDetail->province_id;
-        $filterCity = $workUnitDetail->city_id;
         $dateFrom   = $request->dateFrom;
         $dateTo     = $request->dateTo;
 
         $query =  ServiceType::with([
-            'companies' => function ($subQuery) use ($filterProvince, $filterCity, $dateFrom, $dateTo, $workUnitDetail) {
-                if ($workUnitDetail->level === 'Level 2') {
-                    $subQuery->where('province_id', $filterProvince);
-                }
-                if ($workUnitDetail->level === 'Level 3') {
-                    $subQuery->where('city', $filterCity);
-                }
+            'companies' => function ($subQuery) use ($dateFrom, $dateTo) {
                 return $subQuery->whereBetween('companies.created_at', [$dateFrom, $dateTo]);
             }
         ])
-            ->whereIn('service_types.id', $coverageService)
-            ->select()
-            ->orderBy('service_types.name', 'asc');
+        ->select()
+        ->orderBy('service_types.name', 'asc');
         return $query->get();
     }
 
     public function certificateRequest(Request $request)
     {
-        $workUnit = auth()->user()->work_unit_id;
-        $coverageService = WorkUnitHasService::select()
-            ->where('work_unit_id', $workUnit)
-            ->get()
-            ->pluck('service_type_id')
-            ->toArray();
-        $workUnitDetail = WorkUnit::find($workUnit);
-
-        $filterProvince = $workUnitDetail->province_id;
-        $filterCity = $workUnitDetail->city_id;
-
         $dateFrom   = $request->dateFrom;
         $dateTo     = $request->dateTo;
 
         $queryCertificateRequest = CertificateRequest::with('company')
-            ->whereHas('company.serviceTypes', function ($subQuery) use ($coverageService) {
-                $subQuery->whereIn('service_type_id', $coverageService);
-            })
-            ->whereHas('company', function ($subQuery) use ($filterProvince, $filterCity, $workUnitDetail) {
-                if ($workUnitDetail->level === 'Level 2') {
-                    return $subQuery->where('province_id', $filterProvince);
-                }
-
-                if ($workUnitDetail->level === 'Level 3') {
-                    return $subQuery->where('city', $filterCity);
-                }
-            })
             ->whereBetween('certificate_requests.created_at', [$dateFrom, $dateTo])
             ->where('certificate_requests.status', '!=', 'draft');
         return $queryCertificateRequest->get();
@@ -150,32 +90,10 @@ class DashboardController extends Controller
     {
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->limit <= 30 ? $request->limit : 30;
-        $workUnit = auth()->user()->work_unit_id;
-        $workUnitDetail = WorkUnit::find($workUnit);
-        $coverageService = WorkUnitHasService::select()
-            ->where('work_unit_id', $workUnit)
-            ->get()
-            ->pluck('service_type_id')
-            ->toArray();
-
-        $filterProvince = $workUnitDetail->province_id;
-        $filterCity = $workUnitDetail->city_id;
         $currentDate = Carbon::now()->subMonths(1)->format('Y-m-d');
 
         // Query utama untuk yearlyReport
         $yearlyReport = YearlyReportLog::with('company')
-            ->whereHas('company.serviceTypes', function ($subQuery) use ($coverageService) {
-                $subQuery->whereIn('service_type_id', $coverageService);
-            })
-            ->whereHas('company', function ($subQuery) use ($filterProvince, $filterCity, $workUnitDetail) {
-                if ($workUnitDetail->level === 'Level 2') {
-                    $subQuery->where('province_id', $filterProvince);
-                }
-
-                if ($workUnitDetail->level === 'Level 3') {
-                    $subQuery->where('city', $filterCity);
-                }
-            })
             ->whereDate('due_date', '<', $currentDate)
             ->where('is_completed', false);
 
@@ -209,33 +127,26 @@ class DashboardController extends Controller
         // Menentukan sorting dan limit
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->limit <= 30 ? $request->limit : 30;
-        $wotkUnit = auth()->user()->work_unit_id;
         $dateFrom = $request->date_from;
         $dateTo = $request->date_to;
-        $workUnitDetail = WorkUnit::find($wotkUnit);
         $queryUser = User::select(
             "name",
-            "work_unit_id"
         )
-            ->with("workUnit")
-            ->withCount([
-                'certificate_request_disposisition' => function ($query) use ($dateFrom, $dateTo) {
-                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-                },
-                'certificate_request_disposition_process' => function ($query) use ($dateFrom, $dateTo) {
-                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-                },
-                'certificate_request_completed' => function ($query) use ($dateFrom, $dateTo) {
-                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-                }
-            ])
-            ->whereHas('roles', function ($query) {
-                $query->where('name', 'Assessor');
-            });
+        ->withCount([
+            'certificate_request_disposisition' => function ($query) use ($dateFrom, $dateTo) {
+                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+            },
+            'certificate_request_disposition_process' => function ($query) use ($dateFrom, $dateTo) {
+                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+            },
+            'certificate_request_completed' => function ($query) use ($dateFrom, $dateTo) {
+                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+            }
+        ])
+        ->whereHas('roles', function ($query) {
+            $query->where('name', 'Assessor');
+        });
 
-        if ($workUnitDetail->level !== 'Level 1') {
-            $queryUser = $queryUser->where('work_unit_id',);
-        }
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = strtolower(trim($request->search));
             $queryUser->whereRaw('LOWER(name) LIKE ?', ["%{$searchTerm}%"]);
@@ -266,10 +177,7 @@ class DashboardController extends Controller
     {
         $authAppData = auth();
         $user = User::where('id', $authAppData->user()->id)->first();
-        // $userRole = Role::where('id', $user->is_ministry)->first();
         $roles = $user->getRoleNames();
-        // dd($roles);auth_app_data
-
 
         return response()->json([
             'error' => false,

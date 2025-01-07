@@ -14,23 +14,8 @@ use App\Models\WorkUnitHasService;
 
 class CompanyService
 {
-    public function __construct($workUnit = '')
-    {
-        $this->userWorkUnit = $workUnit;
-
-        if ($workUnit) {
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-            $this->coverageService = WorkUnitHasService::select()
-                ->where('work_unit_id', $workUnit)
-                ->get()
-                ->pluck('service_type_id')
-                ->toArray();
-        }
-    }
-
     public function getDatatable($request)
     {
-        $filterService = $this->coverageService;
         if ($request->searchByServiceType != null) {
             $filterService = $request->searchByServiceType;
         }
@@ -53,23 +38,15 @@ class CompanyService
             $companiesQuery->where('companies.province_id','=',$request->searchByProvince);
         }
 
-        if ($this->workUnitDetail->level === 'Level 2') {
-            $companiesQuery = $companiesQuery->where('province_id', $this->workUnitDetail->province_id);
-        }
-
-        if ($this->workUnitDetail->level === 'Level 3') {
-            $companiesQuery = $companiesQuery->where('city_id', $this->workUnitDetail->city_id);
-        }
-
         if (isset($request->searchByCertificateStatus)) {
             if ($request->searchByCertificateStatus == 0) {
                 $companiesQuery = $companiesQuery->whereNull('certificate_requests.status');
             }
-    
+
             if ($request->searchByCertificateStatus == 1) {
                 $companiesQuery = $companiesQuery->where('certificate_requests.status', 'certificate_validation');
             }
-    
+
             if ($request->searchByCertificateStatus == 2) {
                 $onProgress = [
                     'request',
@@ -109,8 +86,8 @@ class CompanyService
     {
         $company = Company::with(
             [
-                'city', 
-                'province', 
+                'city',
+                'province',
                 'serviceTypes'
             ]
         )
@@ -167,7 +144,7 @@ class CompanyService
 
     public function delete($id)
     {
-        
+
         $oldData = $this->getDetailByID($id);
         $oldData = $oldData->delete();
 

@@ -15,45 +15,24 @@ use Laravel\SerializableClosure\Serializers\Signed;
 
 class DirJenController extends Controller
 {
-    private $workUnitID;
-    private $workUnitDetail;
-
-    public function __construct($workUnitID = '')
-    {
-        if ($workUnitID) {
-            $this->workUnitID = $workUnitID;
-            $this->workUnitDetail = Signer::find($workUnitID);
-        }
-    }
 
     public function index(Request $request)
     {
         // Validasi request
         $validated = $request->validate([
             'limit' => 'required|numeric|max:50',
+            'order_by' => 'required|boolean'
         ]);
 
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $validated['limit'];
 
-        $query = Signer::with(['workUnit'])
-            ->orderBy('created_at', $meta['orderBy']);
-
-        if ($this->workUnitDetail && $this->workUnitDetail->level != 'Level 1') {
-            $query->where('work_unit_id', $this->workUnitID);
-        }
-
-        if ($request->workunitonly) {
-            $query->where('work_unit_id', $this->workUnitID);
-        }
+        $query = Signer::orderBy('created_at', $meta['orderBy']);
 
         if ($request->search !== null) {
             $query->where(function ($query) use ($request) {
                 $searchTerm = "%" . strtolower(trim($request->search)) . "%";
-                $query->whereRaw("LOWER(name) LIKE ?", [$searchTerm])
-                    ->orWhereHas('workUnit', function ($q) use ($searchTerm) {
-                        $q->whereRaw("LOWER(name) LIKE ?", [$searchTerm]);
-                    });
+                $query->whereRaw("LOWER(name) LIKE ?", [$searchTerm]);
             });
         }
 
@@ -118,14 +97,11 @@ class DirJenController extends Controller
         // Validasi input
         $validator = Validator::make($request->all(), [
             'name' => 'required',
-            'satker_id' => 'required|exists:work_units,id', // Pastikan satker_id valid
             'position' => 'required',
             'identity_number' => 'required|unique:signers,identity_number', // Nomor identitas harus unik
             'identity_type' => 'required',
         ], [
             'name.required' => 'Nama wajib diisi.',
-            'satker_id.required' => 'Satuan kerja wajib diisi.',
-            'satker_id.exists' => 'Satuan kerja tidak valid.',
             'position.required' => 'Jabatan wajib diisi.',
             'identity_number.required' => 'Nomor identitas wajib diisi.',
             'identity_number.unique' => 'Nomor identitas sudah terdaftar, harap gunakan nomor yang berbeda.',
@@ -141,14 +117,12 @@ class DirJenController extends Controller
         }
 
         // Nonaktifkan Dirjen yang sudah aktif di satuan kerja yang sama
-        Signer::where('work_unit_id', $request->satker_id)
-            ->where('is_active', 1)
+        Signer::where('is_active', 1)
             ->update(['is_active' => 0]);
 
         // Buat data Dirjen baru
         $newData = new Signer();
         $newData->name = $request->name;
-        $newData->work_unit_id = $request->satker_id;
         $newData->position = $request->position;
         $newData->identity_number = $request->identity_number;
         $newData->identity_type = $request->identity_type;
@@ -239,20 +213,16 @@ class DirJenController extends Controller
         }
         $data = Signer::find($request->id);
 
-        if ($data->work_unit_id != $request->satker_id) {
-            $existingActiveSk = Signer::where('work_unit_id', $request->satker_id)
-                ->where('is_active', 1)
-                ->first();
+        $existingActiveSk = Signer::where('is_active', 1)
+            ->first();
 
-            if ($existingActiveSk) {
-                $data->is_active = 0;
-            } else {
-                $data->is_active = 1;
-            }
+        if ($existingActiveSk) {
+            $data->is_active = 0;
+        } else {
+            $data->is_active = 1;
         }
 
         $data->name = $request->input('name');
-        $data->work_unit_id = $request->input('satker_id');
         $data->position = $request->input('position');
         $data->identity_number = $request->input('identity_number');
         $data->identity_type = $request->input('identity_type');

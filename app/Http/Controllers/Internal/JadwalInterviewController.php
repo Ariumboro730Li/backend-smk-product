@@ -4,13 +4,11 @@ namespace App\Http\Controllers\Internal;
 
 use Carbon\Carbon;
 use App\Models\User;
-use App\Models\WorkUnit;
 use Illuminate\Http\Request;
 use App\Jobs\NotificationUser;
 use App\Models\InterviewAssessor;
 use App\Constants\HttpStatusCodes;
 use App\Models\CertificateRequest;
-use App\Models\WorkUnitHasService;
 use Illuminate\Support\Facades\DB;
 use App\Models\AssessmentInterview;
 use App\Http\Controllers\Controller;
@@ -19,26 +17,6 @@ use Illuminate\Support\Facades\Validator;
 
 class JadwalInterviewController extends Controller
 {
-
-    private $userWorkUnit;
-    private $workUnitDetail;
-
-    private $coverageService;
-
-
-    public function __construct($workUnit = '')
-    {
-        if ($workUnit) {
-            $this->userWorkUnit = $workUnit;
-            $this->workUnitDetail = WorkUnit::find($workUnit);
-            $this->coverageService = WorkUnitHasService::select()
-                ->where('work_unit_id', $workUnit)
-                ->get()
-                ->pluck('service_type_id')
-                ->toArray();
-        }
-    }
-
     public function generateNotificationByStatus($status, $recipients, $information = [])
     {
         $currentDate = Carbon::now()->timestamp;

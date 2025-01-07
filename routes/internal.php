@@ -40,195 +40,126 @@ use App\Http\Controllers\MasterData\SkNumberController;
 |
 */
 
-Route::group(['prefix' => 'admin-panel'], function () {
-    // smk element
-    Route::controller(SmkElementController::class)->group(function () {
-        Route::group(['prefix' => 'smk-element'], function () {
-            Route::get('/list', 'index');
-            Route::get('/status', 'status');
-            Route::get('/detail', 'detail');
-            Route::post('/create', 'store');
-            Route::post('/destroy', 'destroy');
-            Route::get('/get-smk-element', 'smkElement');
-        });
-    });
-    // monitoring element
-    Route::controller(MonitoringElementController::class)->group(function () {
-        Route::group(['prefix' => 'monitoring-element'], function () {
-            Route::get('/list', 'index');
-            Route::get('/detail', 'show');
-            Route::post('/create', 'store');
-            Route::post('/destroy', 'destroy');
-            Route::get('/status', 'status');
-        });
-    });
-    //province
-    Route::controller(ProvinceController::class)->group(function () {
-        Route::group(['prefix' => 'provinsi'], function () {
-            Route::get('/list', 'index');
-            Route::post('/store', 'store');
-            Route::post('/update', 'update');
-            Route::post('/edit', 'edit');
-            Route::post('/destroy', 'destroy');
-        });
-    });
-    //citiees
-    Route::controller(CityController::class)->group(function () {
-        Route::group(['prefix' => 'kota'], function () {
-            Route::get('/list', 'index');
-            Route::post('/store', 'store');
-            Route::post('/update', 'update');
-            Route::post('/edit', 'edit');
-            Route::post('/destroy', 'destroy');
-            Route::get('/select2', 'select2');
-        });
-    });
-    // direktur jendral
-    Route::controller(DirJenController::class)->group(function () {
-        Route::group(['prefix' => 'direktur-jendral'], function () {
-            Route::get('/list', 'index');
-            Route::get('/edit', 'edit');
-            Route::get('/detail', 'show');
-            Route::post('/create', 'create');
-            Route::get('/filterUser', 'filterUserDipilih');
-            Route::get('/filterUserEdit', 'filterUser');
-            Route::post('/store', 'store');
-            Route::post('/update', 'update');
-            Route::post('/destroy', 'destroy');
-            Route::get('/listUser', 'listUser');
-            Route::get('/inactive', 'disable');
-            Route::get('/active', 'enable');
-        });
-    });
-    // satuan kerja
-    Route::controller(WorkUnitController::class)->group(function () {
-        Route::group(['prefix' => 'satuan-kerja'], function () {
-            Route::get('/list', 'index');
-            Route::get('/inactive', 'disable');
-            Route::get('/active', 'enable');
-            Route::get('/province', 'province');
-            Route::get('/service', 'service');
-            Route::get('/city', 'city');
-            Route::post('/store', 'store');
-            Route::get('/edit', 'edit');
-            Route::post('/update', 'update');
-            Route::post('/destroy', 'destroy');
-        });
-    });
-    Route::controller(SkNumberController::class)->group(function(){
-        Route::group(['prefix' => 'sk-number'], function (){
-            Route::get('/list', 'index');
-            Route::post('/store', 'store');
-            Route::post('/destroy', 'destroy');
-            Route::post('/update', 'update');
-            Route::get('/status', 'status');
-        });
-    });
 
-    Route::controller(MasterKbliController::class)->group(function(){
-        Route::group(['prefix' => 'master-kbli'], function (){
-            Route::get('/list', 'index');
-            Route::post('/store', 'store');
-            Route::post('/destroy', 'destroy');
-            Route::post('/update', 'update');
-        });
-    });
-    //dashboard
-    Route::controller(DashboardController::class)->group(function () {
-        Route::group(['prefix' => 'dashboard'], function () {
-            Route::get('/listCompany', 'getListCompany');
-            Route::get('/listCertificat', 'getCertifikatRequest');
-            Route::get('/listServiceTypes', 'getServiceTypes');
-            Route::get('/ListYearlyReport', 'getYearlyReport');
-            Route::get('/ListYearlyReports', 'getYearly');
-            Route::get('/ListAllCompany', 'getAllListCompany');
-            Route::get('/dataDashboard', 'getDataDashboard');
-            Route::get('/userDetail', 'getUserDetails');
-            Route::get('/listAsesor', 'getListAssesor');
-            Route::get('/listYearly', 'yearlyReport');
-            Route::get('/data', 'data');
-        });
-    });
+Route::get('admin-panel/smk-element/list', [SmkElementController::class, 'index']);
+Route::get('admin-panel/smk-element/status', [SmkElementController::class, 'status']);
+Route::get('admin-panel/smk-element/detail', [SmkElementController::class, 'detail']);
+Route::post('admin-panel/smk-element/create', [SmkElementController::class, 'store']);
+Route::post('admin-panel/smk-element/destroy', [SmkElementController::class, 'destroy']);
+Route::get('admin-panel/smk-element/get-smk-element', [SmkElementController::class, 'smkElement']);
 
-    Route::controller(PerusahaanController::class)->group(function () {
-        Route::group(['prefix' => 'perusahaan'], function () {
-            Route::get('/list', 'index');
-            Route::get('/detail', 'show');
-            Route::get('/province', 'province');
-            Route::get('/service', 'service');
-            Route::get('/pengajuan', 'getPengajuan');
-            Route::get('/laporan', 'getLaporanTahunan');
-        });
-    });
-    // laporan tahunan perusahaan
-    Route::controller(YearlyReportController::class)->group(function () {
-        Route::group(['prefix' => 'laporan-tahunan'], function () {
-            Route::get('/list', 'index');
-            Route::post('/store', 'store');
-            Route::get('/detail', 'show');
-            Route::get('/getView', 'getFileUrlToBase64');
-            Route::post('/update', 'update');
-        });
-    });
-    Route::get('/signer', [SignerController::class, 'index']);
-    Route::get('/assessor-list', [AssessorController::class, 'index']);
-    Route::post('/upload-file', [FileController::class, 'uploadFile']);
-    Route::controller(PengajuanSMKPerusahaanController::class)->group(function () {
-        Route::group(['prefix' => 'pengajuan-sertifikat'], function () {
-            Route::get('/list', 'index');
-            Route::get('/detail', 'detail');
-            Route::post('/update', 'update');
+Route::get('admin-panel/monitoring-element/list', [MonitoringElementController::class, 'index']);
+Route::get('admin-panel/monitoring-element/detail', [MonitoringElementController::class, 'show']);
+Route::post('admin-panel/monitoring-element/create', [MonitoringElementController::class, 'store']);
+Route::post('admin-panel/monitoring-element/destroy', [MonitoringElementController::class, 'destroy']);
+Route::get('admin-panel/monitoring-element/status', [MonitoringElementController::class, 'status']);
 
+Route::get('admin-panel/provinsi/list', [ProvinceController::class, 'index']);
+Route::post('admin-panel/provinsi/store', [ProvinceController::class, 'store']);
+Route::post('admin-panel/provinsi/update', [ProvinceController::class, 'update']);
+Route::post('admin-panel/provinsi/edit', [ProvinceController::class, 'edit']);
+Route::post('admin-panel/provinsi/destroy', [ProvinceController::class, 'destroy']);
 
-            Route::get('/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
-            Route::post('/store-assesment', [PenilaianPengajuanController::class, 'store']);
-            Route::post('/record-of-verification', [BeritaAcaraController::class, 'create']);
-            Route::get('/show-record-of-vertification', [BeritaAcaraController::class, 'showRecordOfVerification']);
+Route::get('admin-panel/kota/list', [CityController::class, 'index']);
+Route::post('admin-panel/kota/store', [CityController::class, 'store']);
+Route::post('admin-panel/kota/update', [CityController::class, 'update']);
+Route::post('admin-panel/kota/edit', [CityController::class, 'edit']);
+Route::post('admin-panel/kota/destroy', [CityController::class, 'destroy']);
+Route::get('admin-panel/kota/select2', [CityController::class, 'select2']);
 
+Route::get('admin-panel/direktur-jendral/list', [DirJenController::class, 'index']);
+Route::get('admin-panel/direktur-jendral/edit', [DirJenController::class, 'edit']);
+Route::get('admin-panel/direktur-jendral/detail', [DirJenController::class, 'show']);
+Route::post('admin-panel/direktur-jendral/create', [DirJenController::class, 'create']);
+Route::get('admin-panel/direktur-jendral/filterUser', [DirJenController::class, 'filterUserDipilih']);
+Route::get('admin-panel/direktur-jendral/filterUserEdit', [DirJenController::class, 'filterUser']);
+Route::post('admin-panel/direktur-jendral/store', [DirJenController::class, 'store']);
+Route::post('admin-panel/direktur-jendral/update', [DirJenController::class, 'update']);
+Route::post('admin-panel/direktur-jendral/destroy', [DirJenController::class, 'destroy']);
+Route::get('admin-panel/direktur-jendral/listUser', [DirJenController::class, 'listUser']);
+Route::get('admin-panel/direktur-jendral/inactive', [DirJenController::class, 'disable']);
+Route::get('admin-panel/direktur-jendral/active', [DirJenController::class, 'enable']);
 
-            Route::controller(PengesahanDokumenController::class)->group(function () {
-                Route::group(['prefix' => 'pengesahan-sertifikat'], function () {
-                    Route::post('/certificate-release', 'createCertificateRelease');
-                    Route::get('/generate-sk', 'getGenerateSK');
-                    Route::get('/generate-official-report', 'print');
-                });
-            });
+// Route::get('admin-panel/satuan-kerja/list', [WorkUnitController::class, 'index']);
+// Route::get('admin-panel/satuan-kerja/inactive', [WorkUnitController::class, 'disable']);
+// Route::get('admin-panel/satuan-kerja/active', [WorkUnitController::class, 'enable']);
+// Route::get('admin-panel/satuan-kerja/province', [WorkUnitController::class, 'province']);
+// Route::get('admin-panel/satuan-kerja/service', [WorkUnitController::class, 'service']);
+// Route::get('admin-panel/satuan-kerja/city', [WorkUnitController::class, 'city']);
+// Route::post('admin-panel/satuan-kerja/store', [WorkUnitController::class, 'store']);
+// Route::get('admin-panel/satuan-kerja/edit', [WorkUnitController::class, 'edit']);
+// Route::post('admin-panel/satuan-kerja/update', [WorkUnitController::class, 'update']);
+// Route::post('admin-panel/satuan-kerja/destroy', [WorkUnitController::class, 'destroy']);
 
-            Route::controller(JadwalInterviewController::class)->group(function () {
-                Route::group(['prefix' => 'jadwal'], function () {
-                    Route::post('/updateJadwal   ','update');
-                    Route::get('/getJadwal', 'getJadwalInterview');
-                    Route::post('/storeJadwal', 'storeAssessmentInterview');
-                });
-            });
-        });
-    });
+Route::get('admin-panel/sk-number/list', [SkNumberController::class, 'index']);
+Route::post('admin-panel/sk-number/store', [SkNumberController::class, 'store']);
+Route::post('admin-panel/sk-number/destroy', [SkNumberController::class, 'destroy']);
+Route::post('admin-panel/sk-number/update', [SkNumberController::class, 'update']);
+Route::get('admin-panel/sk-number/status', [SkNumberController::class, 'status']);
 
-    Route::controller(SettingController::class)->group(function () {
-        Route::group(['prefix' => 'setting'], function () {
-            Route::get('/list', 'list');
-            Route::get('/find', 'get');
-            Route::get('/detail', 'get');
-            Route::post('/oss', 'oss');
-            Route::post('/aplikasi', 'aplikasi');
-        });
-    });
+Route::get('admin-panel/master-kbli/list', [MasterKbliController::class, 'index']);
+Route::post('admin-panel/master-kbli/store', [MasterKbliController::class, 'store']);
+Route::post('admin-panel/master-kbli/destroy', [MasterKbliController::class, 'destroy']);
+Route::post('admin-panel/master-kbli/update', [MasterKbliController::class, 'update']);
 
-    Route::controller(OssController::class)->group(function () {
-        Route::get('/syncOss', 'syncOssInternal');
-    });
+Route::get('admin-panel/dashboard/listCompany', [DashboardController::class, 'getListCompany']);
+Route::get('admin-panel/dashboard/listCertificat', [DashboardController::class, 'getCertifikatRequest']);
+Route::get('admin-panel/dashboard/listServiceTypes', [DashboardController::class, 'getServiceTypes']);
+Route::get('admin-panel/dashboard/ListYearlyReport', [DashboardController::class, 'getYearlyReport']);
+Route::get('admin-panel/dashboard/ListYearlyReports', [DashboardController::class, 'getYearly']);
+Route::get('admin-panel/dashboard/ListAllCompany', [DashboardController::class, 'getAllListCompany']);
+Route::get('admin-panel/dashboard/dataDashboard', [DashboardController::class, 'getDataDashboard']);
+Route::get('admin-panel/dashboard/userDetail', [DashboardController::class, 'getUserDetails']);
+Route::get('admin-panel/dashboard/listAsesor', [DashboardController::class, 'getListAssesor']);
+Route::get('admin-panel/dashboard/listYearly', [DashboardController::class, 'yearlyReport']);
+Route::get('admin-panel/dashboard/data', [DashboardController::class, 'data']);
 
-    Route::controller(UserManagementController::class)->group(function () {
-        Route::group(['prefix' => 'user-management'], function () {
-            Route::get('/list', 'list');
-            Route::get('/detail', 'detail');
-            Route::post('/add', 'store');
-            Route::get('/active', 'active');
-            Route::get('/inactive', 'inactive');
-            Route::post('/active', 'active');
-            Route::post('/inactive', 'inactive');
-            Route::post('/update', 'update');
-            Route::post('/destroy', 'destroy');
-        });
-    });
-});
+Route::get('admin-panel/perusahaan/list', [PerusahaanController::class, 'index']);
+Route::get('admin-panel/perusahaan/detail', [PerusahaanController::class, 'show']);
+Route::get('admin-panel/perusahaan/province', [PerusahaanController::class, 'province']);
+Route::get('admin-panel/perusahaan/service', [PerusahaanController::class, 'service']);
+Route::get('admin-panel/perusahaan/pengajuan', [PerusahaanController::class, 'getPengajuan']);
+Route::get('admin-panel/perusahaan/laporan', [PerusahaanController::class, 'getLaporanTahunan']);
+
+Route::get('admin-panel/laporan-tahunan/list', [YearlyReportController::class, 'index']);
+Route::post('admin-panel/laporan-tahunan/store', [YearlyReportController::class, 'store']);
+Route::get('admin-panel/laporan-tahunan/detail', [YearlyReportController::class, 'show']);
+Route::get('admin-panel/laporan-tahunan/getView', [YearlyReportController::class, 'getFileUrlToBase64']);
+Route::post('admin-panel/laporan-tahunan/update', [YearlyReportController::class, 'update']);
+
+Route::get('admin-panel/signer', [SignerController::class, 'index']);
+Route::get('admin-panel/assessor-list', [AssessorController::class, 'index']);
+Route::post('admin-panel/upload-file', [FileController::class, 'uploadFile']);
+
+Route::get('admin-panel/pengajuan-sertifikat/list', [PengajuanSMKPerusahaanController::class, 'index']);
+Route::get('admin-panel/pengajuan-sertifikat/detail', [PengajuanSMKPerusahaanController::class, 'detail']);
+Route::post('admin-panel/pengajuan-sertifikat/update', [PengajuanSMKPerusahaanController::class, 'update']);
+Route::get('admin-panel/pengajuan-sertifikat/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
+Route::post('admin-panel/pengajuan-sertifikat/store-assesment', [PenilaianPengajuanController::class, 'store']);
+Route::post('admin-panel/pengajuan-sertifikat/record-of-verification', [BeritaAcaraController::class, 'create']);
+Route::get('admin-panel/pengajuan-sertifikat/show-record-of-vertification', [BeritaAcaraController::class, 'showRecordOfVerification']);
+Route::post('admin-panel/pengesahan-sertifikat/certificate-release', [PengesahanDokumenController::class, 'createCertificateRelease']);
+Route::get('admin-panel/pengesahan-sertifikat/generate-sk', [PengesahanDokumenController::class, 'getGenerateSK']);
+Route::get('admin-panel/pengesahan-sertifikat/generate-official-report', [PengesahanDokumenController::class, 'print']);
+Route::post('admin-panel/jadwal/updateJadwal', [JadwalInterviewController::class, 'update']);
+Route::get('admin-panel/jadwal/getJadwal', [JadwalInterviewController::class, 'getJadwalInterview']);
+Route::post('admin-panel/jadwal/storeJadwal', [JadwalInterviewController::class, 'storeAssessmentInterview']);
+
+Route::get('admin-panel/setting/list', [SettingController::class, 'list']);
+Route::get('admin-panel/setting/find', [SettingController::class, 'get']);
+Route::get('admin-panel/setting/detail', [SettingController::class, 'get']);
+Route::post('admin-panel/setting/oss', [SettingController::class, 'oss']);
+Route::post('admin-panel/setting/aplikasi', [SettingController::class, 'aplikasi']);
+
+Route::get('admin-panel/syncOss', [OssController::class, 'syncOssInternal']);
+
+Route::get('admin-panel/user-management/list', [UserManagementController::class, 'list']);
+Route::get('admin-panel/user-management/detail', [UserManagementController::class, 'detail']);
+Route::post('admin-panel/user-management/add', [UserManagementController::class, 'store']);
+Route::get('admin-panel/user-management/active', [UserManagementController::class, 'active']);
+Route::get('admin-panel/user-management/inactive', [UserManagementController::class, 'inactive']);
+Route::post('admin-panel/user-management/active', [UserManagementController::class, 'active']);
+Route::post('admin-panel/user-management/inactive', [UserManagementController::class, 'inactive']);
+Route::post('admin-panel/user-management/update', [UserManagementController::class, 'update']);
+Route::post('admin-panel/user-management/destroy', [UserManagementController::class, 'destroy']);
+

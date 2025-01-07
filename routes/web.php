@@ -38,6 +38,7 @@ Route::post('login', [AuthController::class, 'login']);
 // Route::post('logout', [AuthController::class, 'logout']);
 Route::post('register', [RegisterController::class, 'register']);
 
+
 Route::controller(ProvinceController::class)->group(function () {
     Route::group(['prefix' => 'provinsi'], function () {
         Route::get('/list', 'index');
