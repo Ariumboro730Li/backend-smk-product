@@ -12,6 +12,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\Models\CertificateRequestAssessment;
 use App\Models\CompanyServiceType;
+use App\Models\ServiceType;
 use App\Models\User;
 
 class PengajuanSMKPerusahaanController extends Controller
@@ -19,7 +20,37 @@ class PengajuanSMKPerusahaanController extends Controller
     private $coverageService;
 
     public function __construct() {}
+    public function serviceType(Request $request)
+    {
+        $query = ServiceType::select('id', 'name',);
 
+        // Jika ada parameter 'search', lakukan pencarian
+        if ($request->has('search') && !empty($request->search)) {
+            $search = strtolower(trim($request->search));
+
+            // Tambahkan kondisi pencarian pada query
+            $query->whereRaw("LOWER(name) LIKE ?", ["%$search%"]);
+        }
+
+        // Eksekusi query dan ambil hasilnya
+        $service = $query->get();
+        // dd($service);
+        if (!$service) {
+
+            return response()->json([
+                'errors' => true,
+                'message' => 'Data Tidak Di temukan',
+                'status_code' => HttpStatusCodes::HTTP_NOT_FOUND,
+            ], status: HttpStatusCodes::HTTP_NOT_FOUND);
+        }
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $service,
+        ], status: HttpStatusCodes::HTTP_OK);
+    }
     public function index(Request $request)
     {
         $meta = [

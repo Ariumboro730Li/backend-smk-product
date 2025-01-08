@@ -134,6 +134,7 @@ Route::post('admin-panel/upload-file', [FileController::class, 'uploadFile']);
 Route::get('admin-panel/pengajuan-sertifikat/list', [PengajuanSMKPerusahaanController::class, 'index']);
 Route::get('admin-panel/pengajuan-sertifikat/detail', [PengajuanSMKPerusahaanController::class, 'detail']);
 Route::post('admin-panel/pengajuan-sertifikat/update', [PengajuanSMKPerusahaanController::class, 'update']);
+Route::get('admin-panel/pengajuan-sertifikat/serviceType', [PengajuanSMKPerusahaanController::class, 'serviceType']);
 Route::get('admin-panel/pengajuan-sertifikat/history', [HistoryPengajuanController::class, 'getRequestHistoryByRequestID']);
 Route::post('admin-panel/pengajuan-sertifikat/store-assesment', [PenilaianPengajuanController::class, 'store']);
 Route::post('admin-panel/pengajuan-sertifikat/record-of-verification', [BeritaAcaraController::class, 'create']);
