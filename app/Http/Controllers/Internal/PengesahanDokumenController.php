@@ -595,9 +595,9 @@ class PengesahanDokumenController extends Controller
                         }
                     }
 
-                    // Hitung skor elemen dalam bentuk persentase dan bulatkan ke angka terdekat
-                    $elementScore = ($totalMax > 0) ? round(($totalActual / $totalMax) * 100) : 0;
-                    $nilai->put($key, $elementScore); // Simpan skor elemen dalam bentuk persentase bulat
+                    // Hitung skor elemen dalam skala 1-10 dan bulatkan ke 1 desimal
+                    $elementScore = ($totalMax > 0) ? round(($totalActual / $totalMax) * 10, 1) : 0;
+                    $nilai->put($key, $elementScore); // Simpan skor elemen dalam skala 1-10
                 }
             }
         }

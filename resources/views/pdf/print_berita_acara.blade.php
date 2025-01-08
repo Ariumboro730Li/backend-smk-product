@@ -86,7 +86,7 @@
             <tr>
                 <th class="center-text">NO.</th>
                 <th class="center-text">ELEMEN</th>
-                <th class="center-text">TOTAL NILAI (%)</th>
+                <th class="center-text">TOTAL NILAI</th>
                 <th class="center-text">MEMENUHI</th>
                 <th class="center-text">TIDAK MEMENUHI</th>
                 <th class="center-text">KETERANGAN</th>
@@ -96,14 +96,14 @@
                 <tr>
                     <td class="center-text">{{ $loop->iteration }}.</td>
                     <td>{{ $title }}</td>
-                    <td class="center-text">{{ isset($nilai[$key]) ? $nilai[$key] . '%' : '-' }}</td>
+                    <td class="center-text">{{ isset($nilai[$key]) ? $nilai[$key] : '-' }}</td>
                     <td class="center-text">
-                        @if (isset($nilai[$key]) && $nilai[$key] > 50)
+                        @if (isset($nilai[$key]) && $nilai[$key] > 5)
                             v
                         @endif
                     </td>
                     <td class="center-text">
-                        @if (isset($nilai[$key]) && $nilai[$key] <= 50)
+                        @if (isset($nilai[$key]) && $nilai[$key] <= 5)
                             v
                         @endif
                     </td>
@@ -116,12 +116,14 @@
                 <th colspan="2">Total Penilaian Seluruh Dokumen</th>
                 <th colspan="4" class="center-text">
                     @if ($nilai->count() > 0)
-                        {{ round($nilai->sum() / $nilai->count(), 2) }}%
+                        {{-- Hitung rata-rata nilai dan kalibrasi ke skala 100% --}}
+                        {{ round(($nilai->sum() / ($nilai->count() * 10)) * 100, 2) }}%
                     @else
                         0%
                     @endif
                 </th>
             </tr>
+
         </table>
 
 
