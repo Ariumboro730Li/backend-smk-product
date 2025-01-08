@@ -9,6 +9,7 @@ use App\Http\Controllers\Company\DashboardController;
 use App\Http\Controllers\Company\PengajuanSertifikatController;
 use App\Http\Controllers\Company\HistoryPengajuanController;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -46,4 +47,5 @@ Route::get('laporan-tahunan/latest', [LaporanTahunanController::class, 'getLates
 Route::post('laporan-tahunan/upload-file', [LaporanTahunanController::class, 'uploadFile']);
 Route::get('laporan-tahunan/getView', [LaporanTahunanController::class, 'getFileUrlToBase64']);
 
+Route::get('/setting/find', [SettingController::class, 'get']);
 Route::get('/syncOss', [OssController::class, 'syncOss']);
