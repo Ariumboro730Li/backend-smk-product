@@ -70,8 +70,8 @@ class DashboardController extends Controller
                 return $subQuery->whereBetween('companies.created_at', [$dateFrom, $dateTo]);
             }
         ])
-        ->select()
-        ->orderBy('service_types.name', 'asc');
+            ->select()
+            ->orderBy('service_types.name', 'asc');
         return $query->get();
     }
 
@@ -132,20 +132,20 @@ class DashboardController extends Controller
         $queryUser = User::select(
             "name",
         )
-        ->withCount([
-            'certificate_request_disposisition' => function ($query) use ($dateFrom, $dateTo) {
-                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-            },
-            'certificate_request_disposition_process' => function ($query) use ($dateFrom, $dateTo) {
-                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-            },
-            'certificate_request_completed' => function ($query) use ($dateFrom, $dateTo) {
-                return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
-            }
-        ])
-        ->whereHas('roles', function ($query) {
-            $query->where('name', 'Assessor');
-        });
+            ->withCount([
+                'certificate_request_disposisition' => function ($query) use ($dateFrom, $dateTo) {
+                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+                },
+                'certificate_request_disposition_process' => function ($query) use ($dateFrom, $dateTo) {
+                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+                },
+                'certificate_request_completed' => function ($query) use ($dateFrom, $dateTo) {
+                    return $query->whereBetween('created_at', [$dateFrom, $dateTo]);
+                }
+            ])
+            ->whereHas('roles', function ($query) {
+                $query->where('name', 'Assessor');
+            });
 
         if ($request->has('search') && !empty($request->search)) {
             $searchTerm = strtolower(trim($request->search));
@@ -191,6 +191,41 @@ class DashboardController extends Controller
                     'role' => $roles
                 ],
             ],
+        ], HttpStatusCodes::HTTP_OK);
+    }
+
+    public function totalPenilaian(Request $request)
+    {
+        $dateFrom = $request->dateFrom;
+        $dateTo = $request->dateTo;
+
+        // Ambil data sekaligus dengan grouping
+        $data = CertificateRequest::selectRaw("
+            DATE(created_at) as date,
+            SUM(CASE WHEN status = 'request' THEN 1 ELSE 0 END) as pengajuanAwalcoUNT,
+            SUM(CASE WHEN status = 'certificate_validation' THEN 1 ELSE 0 END) as pengajuanSelesai,
+            SUM(CASE WHEN status NOT IN ('request', 'certificate_validation') THEN 1 ELSE 0 END) as prosesPengajuan
+        ")
+            ->whereBetween('created_at', [$dateFrom, $dateTo])
+            ->groupByRaw('DATE(created_at)')
+            ->orderByRaw('DATE(created_at)')
+            ->get();
+
+        // Format ulang hasil data
+        $result = $data->map(function ($item) {
+            return [
+                'date' => $item->date,
+                'pengajuan_awal' => (int) $item->pengajuanAwalcoUNT,
+                'proses_pengajuan' => (int) $item->pengajuanSelesai,
+                'proses_selesai' => (int) $item->prosesPengajuan
+            ];
+        });
+
+        return response()->json([
+            'error' => false,
+            'message' => 'User details retrieved successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $result
         ], HttpStatusCodes::HTTP_OK);
     }
 }

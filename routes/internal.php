@@ -113,6 +113,7 @@ Route::get('admin-panel/dashboard/dataDashboard', [DashboardController::class, '
 Route::get('admin-panel/dashboard/userDetail', [DashboardController::class, 'getUserDetails']);
 Route::get('admin-panel/dashboard/listAsesor', [DashboardController::class, 'getListAssesor']);
 Route::get('admin-panel/dashboard/listYearly', [DashboardController::class, 'yearlyReport']);
+Route::get('admin-panel/dashboard/totalPenilaian', [DashboardController::class, 'totalPenilaian']);
 Route::get('admin-panel/dashboard/data', [DashboardController::class, 'data']);
 
 Route::get('admin-panel/perusahaan/list', [PerusahaanController::class, 'index']);
