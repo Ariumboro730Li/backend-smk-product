@@ -122,6 +122,7 @@ Route::get('admin-panel/perusahaan/province', [PerusahaanController::class, 'pro
 Route::get('admin-panel/perusahaan/service', [PerusahaanController::class, 'service']);
 Route::get('admin-panel/perusahaan/pengajuan', [PerusahaanController::class, 'getPengajuan']);
 Route::get('admin-panel/perusahaan/laporan', [PerusahaanController::class, 'getLaporanTahunan']);
+Route::get('admin-panel/perusahaan/kbli', [PerusahaanController::class, 'getCompanyKBLI']);
 
 Route::get('admin-panel/laporan-tahunan/list', [YearlyReportController::class, 'index']);
 Route::post('admin-panel/laporan-tahunan/store', [YearlyReportController::class, 'store']);

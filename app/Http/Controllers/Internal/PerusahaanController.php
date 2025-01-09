@@ -6,8 +6,10 @@ use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Models\CertificateRequest;
 use App\Models\Company;
+use App\Models\NibOss;
 use App\Models\Province;
 use App\Models\ServiceType;
+use App\Models\StandardIndustrialClassification;
 use App\Models\User;
 use App\Models\YearlyReport;
 use Illuminate\Http\Request;
@@ -343,10 +345,6 @@ class PerusahaanController extends Controller
         ], HttpStatusCodes::HTTP_OK);
     }
 
-
-
-
-
     public function getLaporanTahunan(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -480,5 +478,77 @@ class PerusahaanController extends Controller
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $province,
         ], status: HttpStatusCodes::HTTP_OK);
+    }
+
+    public function getCompanyKBLI(Request $request)
+    {
+        $validator = Validator::make(
+            $request->all(),
+            [
+                'id' => 'required|exists:companies,id',
+                'limit' => 'required|numeric|max:50',
+            ],
+            [
+                'id.required' => 'ID Perusahaan diperlukan',
+                'id.exists' => 'Perusahaan tidak ditemukan',
+                'limit.required' => 'Limit diperlukan',
+                'limit.numeric' => 'Limit harus angka',
+            ]
+        );
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => true,
+                'message' => $validator->errors()->all()[0],
+                'status_code' => HttpStatusCodes::HTTP_BAD_REQUEST,
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        $company = Company::select('nib')->where('id', $request->id)->first();
+
+        $nib = NibOss::where('nib', $company->nib)->first();
+
+        if (!$nib) {
+            return response()->json([
+                'error' => true,
+                'message' => "NIB Tidak ditemukan",
+                'status_code' => HttpStatusCodes::HTTP_BAD_REQUEST,
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
+        $dataKbli = $nib->data_nib;
+
+        $kbliList = array_column($dataKbli['data_proyek'], 'kbli');
+
+        $existKbli = StandardIndustrialClassification::pluck('kbli')->toArray();
+
+        $kbliWithMatch = array_map(function ($kbli) use ($existKbli) {
+            return [
+                'kbli' => $kbli,
+                'is_match' => in_array($kbli, $existKbli) ? 1 : 0,
+            ];
+        }, $kbliList);
+
+        $page = (int) $request->input('page', 1);
+        $limit = (int) $request->input('limit', 10);
+        $offset = ($page - 1) * $limit;
+
+        $paginatedData = array_slice($kbliWithMatch, $offset, $limit);
+        $totalItems = count($kbliWithMatch);
+        $totalPages = ceil($totalItems / $limit);
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $paginatedData,
+            'paginate' => [
+                'total' => $totalItems,
+                'count' => count($paginatedData),
+                'per_page' => $limit,
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+            ],
+        ], HttpStatusCodes::HTTP_OK);
     }
 }
