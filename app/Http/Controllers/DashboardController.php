@@ -130,7 +130,7 @@ class DashboardController extends Controller
         $dateFrom = $request->date_from;
         $dateTo = $request->date_to;
         $queryUser = User::select(
-            "name",
+            "name","nip"
         )
             ->withCount([
                 'certificate_request_disposisition' => function ($query) use ($dateFrom, $dateTo) {
