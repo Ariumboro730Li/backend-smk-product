@@ -83,7 +83,7 @@ class YearlyReportController extends Controller
         // Mengembalikan response dengan pagination
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $formattedData,
             'pagination' => [
@@ -184,7 +184,7 @@ class YearlyReportController extends Controller
         return response()->json([
             'status_code'   => HttpStatusCodes::HTTP_OK,
             'error'         => false,
-            'message'       => "Successfully",
+            'message'       => "Berhasil",
             'data'          => array(
                 'certificate_file_base64'   => "data:application/pdf;base64," . $b64Doc
             )
@@ -274,8 +274,30 @@ class YearlyReportController extends Controller
         return response()->json([
             'status_code' => 200,
             'error' => false,
-            'message' => 'Assessment updated successfully',
+            'message' => 'Assessment updated Berhasil',
             'data' => $yearlyReportData
         ], 200);
+    }
+
+    public function countData(Request $request)
+    {
+        $countData = YearlyReport::selectRaw("
+            COUNT(*) as total_pengajuan,
+            SUM(CASE WHEN status = 'revision' THEN 1 ELSE 0 END) as total_revisi,
+            SUM(CASE WHEN status = 'verified' THEN 1 ELSE 0 END) as total_terverifikasi
+        ")->first();
+
+        // Pastikan data berupa angka
+        $response = [
+            'total_pengajuan' => (int) $countData->total_pengajuan,
+            'total_revisi' => (int) $countData->total_revisi,
+            'total_terverifikasi' => (int) $countData->total_terverifikasi,
+        ];
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Berhasil',
+            'data' => $response,
+        ]);
     }
 }

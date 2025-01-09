@@ -29,6 +29,7 @@ use App\Http\Controllers\Internal\SignerController;
 use App\Http\Controllers\MasterData\AssessorController;
 use App\Http\Controllers\MasterData\MasterKbliController;
 use App\Http\Controllers\MasterData\SkNumberController;
+use App\Jobs\YearlyReportEmail;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,6 +132,7 @@ Route::post('admin-panel/laporan-tahunan/store', [YearlyReportController::class,
 Route::get('admin-panel/laporan-tahunan/detail', [YearlyReportController::class, 'show']);
 Route::get('admin-panel/laporan-tahunan/getView', [YearlyReportController::class, 'getFileUrlToBase64']);
 Route::post('admin-panel/laporan-tahunan/update', [YearlyReportController::class, 'update']);
+Route::get('admin-panel/laporan-tahunan/countData', [YearlyReportController::class, 'countData']);
 
 Route::get('admin-panel/signer', [SignerController::class, 'index']);
 Route::get('admin-panel/assessor-list', [AssessorController::class, 'index']);
