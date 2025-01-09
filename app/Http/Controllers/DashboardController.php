@@ -204,7 +204,7 @@ class DashboardController extends Controller
             DATE(created_at) as date,
             SUM(CASE WHEN status = 'request' THEN 1 ELSE 0 END) as pengajuanAwalcoUNT,
             SUM(CASE WHEN status = 'certificate_validation' THEN 1 ELSE 0 END) as pengajuanSelesai,
-            SUM(CASE WHEN status NOT IN ('request', 'certificate_validation') THEN 1 ELSE 0 END) as prosesPengajuan
+            SUM(CASE WHEN status NOT IN ('request', 'draft', 'certificate_validation') THEN 1 ELSE 0 END) as prosesPengajuan
         ")
             ->whereBetween('created_at', [$dateFrom, $dateTo])
             ->groupByRaw('DATE(created_at)')
