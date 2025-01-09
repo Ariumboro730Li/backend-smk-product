@@ -95,7 +95,7 @@ class DashboardController extends Controller
         // Query utama untuk yearlyReport
         $yearlyReport = YearlyReportLog::with('company')
             ->whereDate('due_date', '<', $currentDate)
-            ->where('is_completed', false);
+            ->where('is_completed', 0);
 
         // Menambahkan pencarian
         if ($request->has('search') && !empty($request->search)) {
@@ -120,7 +120,6 @@ class DashboardController extends Controller
             ],
         ], HttpStatusCodes::HTTP_OK);
     }
-
 
     public function getListAssesor(Request $request)
     {
