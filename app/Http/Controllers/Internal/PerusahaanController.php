@@ -569,7 +569,7 @@ class PerusahaanController extends Controller
         $year = $request->input('year', Carbon::now()->year);
 
         $serviceTypes = ServiceType::with(['companies' => function ($query) use ($year) {
-            $query->whereYear('request_date', $year);
+            $query->whereYear('companies.created_at', $year);
         }])->get();
         $series = $serviceTypes->map(function ($serviceType) use ($year) {
             $monthlyData = array_fill(0, 12, 0);
