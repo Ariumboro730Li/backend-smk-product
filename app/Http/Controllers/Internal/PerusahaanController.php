@@ -155,7 +155,7 @@ class PerusahaanController extends Controller
         }
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $formattedData,
             // 'data' => $data->toArray()['data'],
@@ -428,7 +428,7 @@ class PerusahaanController extends Controller
         // Return data dalam format JSON beserta paginasi
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $formattedData,
             'paginate' => [
@@ -456,7 +456,7 @@ class PerusahaanController extends Controller
 
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $service,
         ], status: HttpStatusCodes::HTTP_OK);
@@ -477,7 +477,7 @@ class PerusahaanController extends Controller
 
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $province,
         ], status: HttpStatusCodes::HTTP_OK);
@@ -550,7 +550,7 @@ class PerusahaanController extends Controller
 
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $paginatedData,
             'paginate' => [
@@ -587,9 +587,33 @@ class PerusahaanController extends Controller
 
         return response()->json([
             'error' => false,
-            'message' => 'Successfully',
+            'message' => 'Berhasil',
             'status_code' => HttpStatusCodes::HTTP_OK,
             'data' => $series,
+        ], HttpStatusCodes::HTTP_OK);
+    }
+
+    public function countPerusahaan(Request $request)
+    {
+        $counts = Company::selectRaw("
+            COUNT(*) as total_perusahaan,
+            SUM(CASE WHEN exist_spionam = 1 THEN 1 ELSE 0 END) as terdaftar_spionam,
+            SUM(CASE WHEN exist_spionam = 0 OR exist_spionam IS NULL THEN 1 ELSE 0 END) as belum_terdaftar_spionam,
+            SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as total_perusahaan_terverifikasi
+        ")->first();
+
+        $response = [
+            'total_perusahaan' => (int) $counts->total_perusahaan,
+            'terdaftar_spionam' => (int) $counts->terdaftar_spionam,
+            'belum_terdaftar_spionam' => (int) $counts->belum_terdaftar_spionam,
+            'total_perusahaan_terverifikasi' => (int) $counts->total_perusahaan_terverifikasi,
+        ];
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Berhasil',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $response,
         ], HttpStatusCodes::HTTP_OK);
     }
 }
