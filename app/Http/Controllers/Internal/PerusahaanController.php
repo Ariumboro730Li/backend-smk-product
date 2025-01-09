@@ -6,6 +6,7 @@ use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\Controller;
 use App\Models\CertificateRequest;
 use App\Models\Company;
+use App\Models\CompanyServiceType;
 use App\Models\NibOss;
 use App\Models\Province;
 use App\Models\ServiceType;
@@ -16,6 +17,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use PDO;
 
 class PerusahaanController extends Controller
 {
@@ -558,6 +560,36 @@ class PerusahaanController extends Controller
                 'current_page' => $page,
                 'total_pages' => $totalPages,
             ],
+        ], HttpStatusCodes::HTTP_OK);
+    }
+
+
+    public function countServiceType(Request $request)
+    {
+        $year = $request->input('year', Carbon::now()->year);
+
+        $serviceTypes = ServiceType::with(['companies' => function ($query) use ($year) {
+            $query->whereYear('request_date', $year);
+        }])->get();
+        $series = $serviceTypes->map(function ($serviceType) use ($year) {
+            $monthlyData = array_fill(0, 12, 0);
+
+            foreach ($serviceType->companies as $company) {
+                $month = Carbon::parse($company->created_at)->month - 1;
+                $monthlyData[$month]++;
+            }
+
+            return [
+                'name' => $serviceType->name,
+                'data' => $monthlyData
+            ];
+        });
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $series,
         ], HttpStatusCodes::HTTP_OK);
     }
 }
