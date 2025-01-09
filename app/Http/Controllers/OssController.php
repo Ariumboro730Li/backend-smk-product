@@ -84,6 +84,17 @@ class OssController extends Controller
         ])->json();
 
         if($getMe) {
+            if(isset($getMe['rc'])){
+                if($getMe['rc'] != "200"){
+                    return response()->json([
+                        'status_code' => HttpStatusCodes::HTTP_BAD_REQUEST,
+                        'error' => true,
+                        'message' => $getMe['message']
+                    ], HttpStatusCodes::HTTP_BAD_REQUEST);
+                }
+            }
+
+
             $token = $getMe['token'];
         } else {
             return response()->json([
