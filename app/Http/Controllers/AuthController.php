@@ -4,12 +4,14 @@ namespace App\Http\Controllers;
 
 use App\Constants\HttpStatusCodes;
 use App\Models\Company;
+use App\Models\ServiceType;
 use App\Models\User;
 use DB;
 use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Http\JsonResponse;
 
 class AuthController extends Controller
 {
@@ -226,5 +228,55 @@ class AuthController extends Controller
             'error' => false,
             'message' => 'Logout berhasil. Token telah dihapus.',
         ], 200);
+    }
+
+    public function serviceType(Request $request) : JsonResponse
+    {
+        // Validasi input request
+        $validator = Validator::make($request->all(), [
+            'limit' => 'required|numeric|max:50',
+            'ascending' => 'required|boolean',
+            'search' => 'nullable|string',
+        ]);
+
+        // Jika validasi gagal
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => false,
+                'errors' => $validator->errors()
+            ], HttpStatusCodes::HTTP_BAD_REQUEST);
+        }
+
+
+        $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
+        $meta['limit'] = $request->limit;
+
+        $query = ServiceType::orderBy('created_at', $meta['orderBy']);
+
+
+        if ($request->search !== null) {
+            $query->where(function($query) use ($request) {
+                $columns = ['name'];
+                foreach ($columns as $column) {
+                    $query->orWhereRaw("LOWER({$column}) LIKE ?", ["%" . strtolower(trim($request->search)) . "%"]);
+                }
+            });
+        }
+
+        $data = $query->paginate($meta['limit']);
+
+        return response()->json([
+            'error' => false,
+            'message' => 'Successfully',
+            'status_code' => HttpStatusCodes::HTTP_OK,
+            'data' => $data->items(),
+            'pagination' => [
+                'total' => $data->total(),
+                'count' => $data->count(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'total_pages' => $data->lastPage(),
+            ],
+        ], HttpStatusCodes::HTTP_OK);
     }
 }

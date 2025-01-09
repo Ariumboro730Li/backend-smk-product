@@ -9,7 +9,7 @@ use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +38,11 @@ Route::post('login', [AuthController::class, 'login']);
 // Route::post('logout', [AuthController::class, 'logout']);
 Route::post('register', [RegisterController::class, 'register']);
 
+Route::controller(AuthController::class)->group(function () {
+    Route::group(['prefix' => 'service-type'], function () {
+        Route::get('/list', 'serviceType');
+    });
+});
 
 Route::controller(ProvinceController::class)->group(function () {
     Route::group(['prefix' => 'provinsi'], function () {
@@ -76,4 +81,6 @@ Route::controller(OssController::class)->group(function () {
         Route::get('/inquery-nib', 'inqueryNib');
     });
 });
+
+Route::get('setting/find', [SettingController::class, 'get']);
 
