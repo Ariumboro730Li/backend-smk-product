@@ -166,6 +166,7 @@ class PerusahaanController extends Controller
             ],
         ], status: HttpStatusCodes::HTTP_OK);
     }
+
     public function show(Request $request)
     {
         $validator = Validator::make(
@@ -517,17 +518,25 @@ class PerusahaanController extends Controller
         }
 
         $dataKbli = $nib->data_nib;
+        $kbliList = array_map(function ($item) {
+            return [
+                'kbli' => $item['kbli'],
+                'uraian_usaha' => $item['uraian_usaha'] ?? null, // Tambahkan uraian usaha
+            ];
+        }, $dataKbli['data_proyek']);
 
-        $kbliList = array_column($dataKbli['data_proyek'], 'kbli');
-
+        // Ambil daftar KBLI dari database
         $existKbli = StandardIndustrialClassification::pluck('kbli')->toArray();
 
-        $kbliWithMatch = array_map(function ($kbli) use ($existKbli) {
+        // Proses kecocokan KBLI
+        $kbliWithMatch = array_map(function ($item) use ($existKbli) {
             return [
-                'kbli' => $kbli,
-                'is_match' => in_array($kbli, $existKbli) ? 1 : 0,
+                'kbli' => $item['kbli'],
+                'uraian_usaha' => $item['uraian_usaha'],
+                'is_match' => in_array($item['kbli'], $existKbli) ? 1 : 0, // Cocok atau tidak
             ];
         }, $kbliList);
+
 
         $page = (int) $request->input('page', 1);
         $limit = (int) $request->input('limit', 10);
