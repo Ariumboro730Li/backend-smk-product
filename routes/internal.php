@@ -24,6 +24,7 @@ use App\Http\Controllers\Internal\PengajuanSMKPerusahaanController;
 use App\Http\Controllers\Company\DashboardController as CompanyDashboardController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\Internal\BeritaAcaraController;
+use App\Http\Controllers\Internal\RoleController;
 use App\Http\Controllers\Internal\SignerController;
 use App\Http\Controllers\MasterData\AssessorController;
 use App\Http\Controllers\MasterData\MasterKbliController;
@@ -145,6 +146,13 @@ Route::get('admin-panel/pengesahan-sertifikat/generate-official-report', [Penges
 Route::post('admin-panel/jadwal/updateJadwal', [JadwalInterviewController::class, 'update']);
 Route::get('admin-panel/jadwal/getJadwal', [JadwalInterviewController::class, 'getJadwalInterview']);
 Route::post('admin-panel/jadwal/storeJadwal', [JadwalInterviewController::class, 'storeAssessmentInterview']);
+
+
+Route::get('admin-panel/permission', [RoleController::class, 'getRoleById']);
+Route::get('admin-panel/role-options', [RoleController::class, 'list']);
+Route::put('admin-panel/sync-permission', [RoleController::class,  'syncPermissions']);
+Route::get('admin-panel/group-permission', [RoleController::class, 'getAndGroupAllPermissions']);
+Route::post('admin-panel/create', [RoleController::class, 'create']);
 
 Route::get('admin-panel/setting/list', [SettingController::class, 'list']);
 Route::get('admin-panel/setting/find', [SettingController::class, 'get']);
