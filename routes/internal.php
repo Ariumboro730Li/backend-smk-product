@@ -152,7 +152,7 @@ Route::get('admin-panel/permission', [RoleController::class, 'getRoleById']);
 Route::get('admin-panel/role-options', [RoleController::class, 'list']);
 Route::put('admin-panel/sync-permission', [RoleController::class,  'syncPermissions']);
 Route::get('admin-panel/group-permission', [RoleController::class, 'getAndGroupAllPermissions']);
-Route::post('admin-panel/create', [RoleController::class, 'create']);
+Route::post('admin-panel/role/create', [RoleController::class, 'create']);
 
 Route::get('admin-panel/setting/list', [SettingController::class, 'list']);
 Route::get('admin-panel/setting/find', [SettingController::class, 'get']);
