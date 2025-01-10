@@ -92,8 +92,10 @@ class PerusahaanController extends Controller
             });
         }
 
+        // Pagination data
         $data = $query->paginate($meta['limit']);
 
+        // dd($data);
         $formattedData = $data->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -591,7 +593,7 @@ class PerusahaanController extends Controller
         ], HttpStatusCodes::HTTP_OK);
     }
 
-    public function countPerusahaan(Request $request)
+     public function countPerusahaan(Request $request)
     {
         $counts = Company::selectRaw("
             COUNT(*) as total_perusahaan,
