@@ -92,10 +92,8 @@ class PerusahaanController extends Controller
             });
         }
 
-        // Pagination data
         $data = $query->paginate($meta['limit']);
 
-        // dd($data);
         $formattedData = $data->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -597,10 +595,12 @@ class PerusahaanController extends Controller
     {
         $counts = Company::selectRaw("
             COUNT(*) as total_perusahaan,
-            SUM(CASE WHEN exist_spionam = 1 THEN 1 ELSE 0 END) as terdaftar_spionam,
-            SUM(CASE WHEN exist_spionam = 0 OR exist_spionam IS NULL THEN 1 ELSE 0 END) as belum_terdaftar_spionam,
-            SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as total_perusahaan_terverifikasi
-        ")->first();
+            SUM(CASE WHEN companies.exist_spionam = 1 THEN 1 ELSE 0 END) as terdaftar_spionam,
+            SUM(CASE WHEN companies.exist_spionam = 0 OR exist_spionam IS NULL THEN 1 ELSE 0 END) as belum_terdaftar_spionam,
+            SUM(CASE WHEN companies.is_active = 1 THEN 1 ELSE 0 END) as total_perusahaan_terverifikasi
+        ")->
+        leftJoin('certificate_requests', 'companies.id', '=', 'certificate_requests.company_id')
+        ->first();
 
         $response = [
             'total_perusahaan' => (int) $counts->total_perusahaan,
