@@ -138,6 +138,8 @@ Route::get('admin-panel/signer', [SignerController::class, 'index']);
 Route::get('admin-panel/assessor-list', [AssessorController::class, 'index']);
 Route::post('admin-panel/upload-file', [FileController::class, 'uploadFile']);
 
+
+Route::get('admin-panel/pengajuan-sertifikat/countSubmission', [PengajuanSMKPerusahaanController::class, 'totalPenilaian']);
 Route::get('admin-panel/pengajuan-sertifikat/list', [PengajuanSMKPerusahaanController::class, 'index']);
 Route::get('admin-panel/pengajuan-sertifikat/detail', [PengajuanSMKPerusahaanController::class, 'detail']);
 Route::post('admin-panel/pengajuan-sertifikat/update', [PengajuanSMKPerusahaanController::class, 'update']);
