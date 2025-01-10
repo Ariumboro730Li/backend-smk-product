@@ -579,26 +579,28 @@ class PengesahanDokumenController extends Controller
 
         // Hitung nilai elemen
         if ($element && is_array($element)) {
-            $allTotalMax = []; // Array untuk menyimpan semua totalMax
 
             foreach ($element as $key => $subElements) {
                 if (Str::startsWith($key, 'element_')) {
-                    $totalActual = 0;
-                    $totalMax = 0;
 
                     foreach ($subElements as $subKey => $subValue) {
                         $actualValue = isset($subValue['value']) ? intval($subValue['value']) : 0;
-                        // Ambil nilai maksimal dari max_assesment
                         $maxValue = isset($maxAssessment[$key][$subKey]) ? intval($maxAssessment[$key][$subKey]) : 0;
 
-                        // Jika nilai maksimal ada, hitung totalnya
                         if ($maxValue > 0) {
-                            $totalActual += $actualValue;
-                            $totalMax += $maxValue;
+                            if ($actualValue >= $maxValue) {
+                                $score = 10; // Jika actualValue sama atau lebih besar dari maxValue
+                            } else {
+                                $score = ($actualValue / $maxValue) * 10; // Proporsi nilai berdasarkan actualValue
+                            }
+                        } else {
+                            $score = 0; // Jika maxValue tidak valid, nilai skor adalah 0
                         }
+
                     }
 
-                    $nilai->put($key, $totalMax); // Simpan skor elemen dalam skala 1-10
+                    $score = round($score, 2);
+                    $nilai->put($key, $score);
                 }
             }
 
