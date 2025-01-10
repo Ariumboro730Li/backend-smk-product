@@ -21,7 +21,7 @@ class DirJenController extends Controller
         // Validasi request
         $validated = $request->validate([
             'limit' => 'required|numeric|max:50',
-            'order_by' => 'required|boolean'
+            'ascending' => 'required|boolean'
         ]);
 
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
