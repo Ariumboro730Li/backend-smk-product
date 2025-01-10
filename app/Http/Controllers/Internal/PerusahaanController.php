@@ -53,7 +53,7 @@ class PerusahaanController extends Controller
             $endDate = $endDate->format('Y-m-d');
 
             $query->where(function ($query) use ($startDate, $endDate) {
-                $query->whereBetween(DB::raw('DATE(request_date)'), [$startDate, $endDate]);
+                $query->whereBetween(DB::raw('DATE(companies.created_at)'), [$startDate, $endDate]);
             });
         }
 
