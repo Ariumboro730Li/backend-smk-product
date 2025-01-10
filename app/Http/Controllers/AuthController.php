@@ -49,6 +49,9 @@ class AuthController extends Controller
             ]);
             $user = User::where('username', $request->email)->first();
         }
+
+        $roleModel = null;
+        $permissionRole = null;
         if($user){
             $roleModel = DB::table('model_has_roles')->where('model_id', $user->id)
             ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
@@ -169,6 +172,19 @@ class AuthController extends Controller
             ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
         }
 
+        $user = auth()->user();
+        $roleModel = DB::table('model_has_roles')->where('model_id', $user->id)
+        ->join('roles', 'model_has_roles.role_id', '=', 'roles.id')
+        ->first();
+
+        if($roleModel){
+            $roleId = $roleModel->role_id;
+            $permissionRole = DB::table('role_has_permissions')
+            ->select('name', 'group', 'guard_name')
+            ->join('permissions', 'role_has_permissions.permission_id', '=', 'permissions.id')
+            ->where('role_id', $roleId)->get();
+        }
+
         return response()->json([
             'status_code' => HttpStatusCodes::HTTP_OK,
             'error' => false,
@@ -184,9 +200,10 @@ class AuthController extends Controller
                     'iat' => $payload->get('iat'),
                     'exp' => $payload->get('exp'),
                     'nbf'  => $payload->get('nbf'),
-                ]
-        ]
-    ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
+                ],
+                'permission' => $permissionRole
+            ]
+        ], HttpStatusCodes::HTTP_OK); // 403 Forbidden
 }
 
     // public function logout()

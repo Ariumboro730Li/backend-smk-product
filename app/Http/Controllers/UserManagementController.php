@@ -272,7 +272,6 @@ class UserManagementController extends Controller
             'password.regex' => 'Kata sandi harus mengandung huruf besar, huruf kecil, angka, dan simbol.'
         ]);
 
-
         if ($validator->fails()) {
             return response()->json([
                 'error' => true,
