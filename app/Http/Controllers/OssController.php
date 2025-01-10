@@ -94,7 +94,6 @@ class OssController extends Controller
                 }
             }
 
-
             $token = $getMe['token'];
         } else {
             return response()->json([
@@ -212,6 +211,7 @@ class OssController extends Controller
         $company->pic_phone = $dataNib->penanggung_jwb[0]->no_hp_penanggung_jwb == "-" ? null : $dataNib->penanggung_jwb[0]->no_hp_penanggung_jwb;
         $company->save();
 
+        // !!! ini harus di tambahkan update ke table user jika sudah menjadi 1 table
 
         return response()->json([
             'status_code' => HttpStatusCodes::HTTP_OK,

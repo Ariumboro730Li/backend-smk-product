@@ -21,7 +21,7 @@ class ProvinceController extends Controller
         $validator = Validator::make($request->all(), [
             'limit' => 'required|numeric|max:50',
             'ascending' => 'required|boolean',
-            'search' => 'nullable|string',
+            'keyword' => 'nullable|string',
         ]);
 
         // Jika validasi gagal
@@ -39,11 +39,11 @@ class ProvinceController extends Controller
         $query = Province::orderBy('created_at', $meta['orderBy']);
 
 
-        if ($request->search !== null) {
+        if ($request->keyword !== null) {
             $query->where(function($query) use ($request) {
                 $columns = ['name', 'administrative_code'];
                 foreach ($columns as $column) {
-                    $query->orWhereRaw("LOWER({$column}) LIKE ?", ["%" . strtolower(trim($request->search)) . "%"]);
+                    $query->orWhereRaw("LOWER({$column}) LIKE ?", ["%" . strtolower(trim($request->keyword)) . "%"]);
                 }
             });
         }

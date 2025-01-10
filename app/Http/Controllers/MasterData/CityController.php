@@ -21,11 +21,12 @@ class CityController extends Controller
     {
         // Validasi input request
         $validator = Validator::make($request->all(), [
+            'province_id' => 'nullable|exists:provinces,id',
             'limit' => 'required|numeric|max:50',
             'ascending' => 'required|boolean',
-            'search' => 'nullable|string',
+            'keyword' => 'nullable|string',
         ]);
-    
+
         // Jika validasi gagal
         if ($validator->fails()) {
             return response()->json([
@@ -33,19 +34,23 @@ class CityController extends Controller
                 'errors' => $validator->errors()
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
-    
+
 
         $meta['orderBy'] = $request->ascending ? 'asc' : 'desc';
         $meta['limit'] = $request->limit;
-    
+
         $query = City::with('province')->orderBy('created_at', $meta['orderBy']);
-        if ($request->search !== null) {
+        if ($request->keyword !== null) {
             $query->where(function($query) use ($request) {
                 $columns = ['name', 'administrative_code','province_id'];
                 foreach ($columns as $column) {
-                    $query->orWhereRaw("LOWER({$column}) LIKE ?", ["%" . strtolower(trim($request->search)) . "%"]);
+                    $query->orWhereRaw("LOWER({$column}) LIKE ?", ["%" . strtolower(trim($request->keyword)) . "%"]);
                 }
             });
+        }
+
+        if ($request->province_id !== null) {
+            $query->where('province_id', $request->province_id);
         }
 
         $data = $query->paginate($meta['limit']);
@@ -84,44 +89,44 @@ class CityController extends Controller
             'province_id' => 'required|exists:provinces,id',
             'administrative_code' => 'required|string|max:255',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
-    
+
         $province = Province::find($request->province_id);
-        
+
         if (!$province) {
             return response()->json([
                 'status' => false,
                 'message' => 'Province tidak ditemukan'
             ], HttpStatusCodes::HTTP_NOT_FOUND);
         }
-    
+
         // Cek apakah ada kota lain dengan kode administratif belakang titik yang sama
         $existingCity = City::whereRaw("SUBSTRING_INDEX(administrative_code, '.', -1) = ?", [$request->administrative_code])
                             ->first();
-    
+
         if ($existingCity) {
             return response()->json([
                 'status' => false,
                 'message' => 'Kode administratif sudah ada di kota lain'
             ], HttpStatusCodes::HTTP_CONFLICT);
         }
-    
+
         // Kombinasi kode provinsi dengan kode administratif baru
         $combinedCode = $province->administrative_code . '.' . $request->administrative_code;
-    
+
         // Simpan data baru
         $newData = new City();
         $newData->name = $request->name;
         $newData->province_id = $request->province_id;
         $newData->administrative_code = $combinedCode;
         $newData->save();
-    
+
         // Berikan respons sukses
         return response()->json([
             'message' => 'Sukses Membuat Data Kota',
@@ -129,9 +134,9 @@ class CityController extends Controller
             'data' => $newData
         ], HttpStatusCodes::HTTP_CREATED);
     }
-    
-    
-    
+
+
+
 
     /**
      * Display the specified resource.
@@ -188,60 +193,60 @@ class CityController extends Controller
             'province_id' => 'required|exists:provinces,id',
             'administrative_code' => 'required|string|max:255',
         ]);
-    
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => false,
                 'errors' => $validator->errors()
             ], HttpStatusCodes::HTTP_BAD_REQUEST);
         }
-    
+
         $city = City::find($request->id);
-        
+
         if (!$city) {
             return response()->json([
                 'status' => false,
                 'message' => 'City tidak ditemukan'
             ], HttpStatusCodes::HTTP_NOT_FOUND);
         }
-    
+
         $province = Province::find($request->province_id);
-        
+
         if (!$province) {
             return response()->json([
                 'status' => false,
                 'message' => 'Province tidak ditemukan'
             ], HttpStatusCodes::HTTP_NOT_FOUND);
         }
-    
+
         // Cek apakah ada kota lain dengan kode administratif belakang titik yang sama, kecuali kota yang sedang diupdate
         $existingCity = City::whereRaw("SUBSTRING_INDEX(administrative_code, '.', -1) = ?", [$request->administrative_code])
                             ->where('id', '!=', $city->id)
                             ->first();
-    
+
         if ($existingCity) {
             return response()->json([
                 'status' => false,
                 'message' => 'Kode administratif sudah ada di kota lain'
             ], HttpStatusCodes::HTTP_CONFLICT);
         }
-    
+
         // Kombinasi kode provinsi dengan kode administratif baru
         $combinedCode = $province->administrative_code . '.' . $request->administrative_code;
-    
+
         // Simpan perubahan data kota
         $city->name = $request->name;
         $city->province_id = $request->province_id;
-    
+
         // Cek apakah kode administratif belakang titik (setelah ".") berubah
         $adminCodeSuffix = explode('.', $city->administrative_code)[1] ?? null;
-    
+
         if ($adminCodeSuffix !== $request->administrative_code) {
             $city->administrative_code = $combinedCode;
         }
-    
+
         $city->save();
-    
+
         // Berikan respons sukses
         return response()->json([
             'message' => 'Sukses Memperbarui Data Kota',
@@ -249,12 +254,12 @@ class CityController extends Controller
             'data' => $city
         ], HttpStatusCodes::HTTP_OK);
     }
-    
-    
-    
-    
-    
-    
+
+
+
+
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -283,8 +288,8 @@ class CityController extends Controller
     public function select2(Request $request){
         $query = $request->term['term'] ??'';
         $data = Province::where('name', 'LIKE', "%$query%")->get();
-        
+
         return response()->json($data);
     }
-    
+
 }
