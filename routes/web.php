@@ -2,6 +2,7 @@
 
 use App\Constants\HttpStatusCodes;
 use App\Http\Controllers\FileController;
+use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\MasterData\CityController;
 use App\Http\Controllers\MasterData\ProvinceController;
 use App\Http\Controllers\OssController;
@@ -34,9 +35,10 @@ Route::get('/healthz', function () {
     return 1;
 });
 
-Route::post('login', [AuthController::class, 'login']);
-// Route::post('logout', [AuthController::class, 'logout']);
-Route::post('register', [RegisterController::class, 'register']);
+Route::post('auth/login', [AuthController::class, 'login']);
+Route::post('auth/register', [RegisterController::class, 'register']);
+Route::post('auth/reset-password', [ForgotPasswordController::class, 'reset']);
+Route::post('auth/forgot-password', [ForgotPasswordController::class, 'forgot']);
 
 Route::controller(AuthController::class)->group(function () {
     Route::group(['prefix' => 'service-type'], function () {
@@ -69,18 +71,11 @@ Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
         ], HttpStatusCodes::HTTP_OK);
     });
 
-    Route::controller(FileController::class)->group(function () {
-        Route::group(['prefix' => 'file'], function () {
-            Route::post('/upload', 'uploadFile');
-        });
-    });
+    Route::get('file/upload', [UploadFileController::class, 'upload']);
 });
 
-Route::controller(OssController::class)->group(function () {
-    Route::group(['prefix' => 'oss'], function () {
-        Route::get('/inquery-nib', 'inqueryNib');
-    });
-});
+
+Route::get('oss/inquery-nib', [OssController::class, 'inqueryNib']);
 
 Route::get('setting/find', [SettingController::class, 'get']);
 
