@@ -178,3 +178,5 @@ Route::post('admin-panel/user-management/inactive', [UserManagementController::c
 Route::post('admin-panel/user-management/update', [UserManagementController::class, 'update']);
 Route::post('admin-panel/user-management/destroy', [UserManagementController::class, 'destroy']);
 
+Route::put('pengaturan-akun/update', [UserManagementController::class, 'updateAkunInternal']);
+

@@ -10,6 +10,7 @@ use App\Http\Controllers\Company\PengajuanSertifikatController;
 use App\Http\Controllers\Company\HistoryPengajuanController;
 use App\Http\Controllers\FileController;
 use App\Http\Controllers\SettingController;
+use App\Http\Controllers\UserManagementController;
 
 /*
 |--------------------------------------------------------------------------
@@ -49,3 +50,5 @@ Route::get('laporan-tahunan/getView', [LaporanTahunanController::class, 'getFile
 
 Route::get('/setting/find', [SettingController::class, 'get']);
 Route::get('/syncOss', [OssController::class, 'syncOss']);
+
+Route::put('pengaturan-akun/update', [UserManagementController::class, 'updateAkunCompany']);
