@@ -194,7 +194,7 @@ class UserManagementController extends Controller
             'email'             => 'required|string|email|unique:users,email,' . $term->id_user,
             'nip'               => 'required|string|unique:users,nip,' . $term->id_user,
             'password' => [
-                'required',
+                'nullable', // Password tidak wajib diisi
                 'string',
                 'min:8', // Minimal 8 karakter
                 'max:150', // Maksimal 150 karakter
