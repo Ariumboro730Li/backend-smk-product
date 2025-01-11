@@ -36,8 +36,20 @@ class PerusahaanController extends Controller
         $meta['limit'] = $request->limit;
         $query = Company::orderBy('created_at', $meta['orderBy'])
             ->with(['province', 'city', 'serviceTypes'])
-            ->leftJoin('certificate_requests', 'companies.id', '=', 'certificate_requests.company_id')
-            ->select('companies.*', 'certificate_requests.status as certificate_status');
+            ->leftJoinSub(
+                CertificateRequest::select('company_id', 'status as certificate_status')
+                    ->whereIn('id', function ($subquery) {
+                        $subquery->selectRaw('MAX(id)')
+                            ->from('certificate_requests')
+                            ->groupBy('company_id');
+                    }),
+                'latest_certificate_requests',
+                'companies.id',
+                '=',
+                'latest_certificate_requests.company_id'
+            )
+            ->select('companies.*', 'latest_certificate_requests.certificate_status');
+
 
 
         if ($request->has('fromdate') && $request->has('duedate')) {
@@ -63,9 +75,7 @@ class PerusahaanController extends Controller
         }
 
         if ($request->filled('service_type')) {
-            // Ensure service_type is an array
             $serviceTypes = is_array($request->service_type) ? $request->service_type : [$request->service_type];
-
             $query->whereHas('serviceTypes', function ($q) use ($serviceTypes) {
                 $q->whereIn('service_type_id', $serviceTypes);
             });
@@ -73,29 +83,25 @@ class PerusahaanController extends Controller
 
 
         if ($request->filled('status')) {
-            $query->where('certificate_requests.status', $request->status);
+            $query->where('latest_certificate_requests.certificate_status', $request->status);
         }
 
-        // Jika ada pencarian
+
         if ($request->search !== null) {
             $search = strtolower(trim($request->search));
-
-            // Pencarian pada nama WorkUnit, Province, City, Level, ServiceTypes, Status, dan NIB
             $query->where(function ($query) use ($search) {
-                $query->whereRaw("LOWER(name) LIKE ?", ["%$search%"])
+                $query->whereRaw("LOWER(companies.name) LIKE ?", ["%$search%"])
                     ->orWhereHas('province', function ($query) use ($search) {
-                        $query->whereRaw("LOWER(name) LIKE ?", ["%$search%"]);
+                        $query->whereRaw("LOWER(provinces.name) LIKE ?", ["%$search%"]);
                     })
                     ->orWhereHas('city', function ($query) use ($search) {
-                        $query->whereRaw("LOWER(nib) LIKE ?", ["%$search%"]);
+                        $query->whereRaw("LOWER(cities.name) LIKE ?", ["%$search%"]);
                     });
             });
         }
 
-        // Pagination data
         $data = $query->paginate($meta['limit']);
 
-        // dd($data);
         $formattedData = $data->map(function ($item) {
             return [
                 'id' => $item->id,
@@ -593,16 +599,25 @@ class PerusahaanController extends Controller
         ], HttpStatusCodes::HTTP_OK);
     }
 
-     public function countPerusahaan(Request $request)
+    public function countPerusahaan(Request $request)
     {
         $counts = Company::selectRaw("
-            COUNT(*) as total_perusahaan,
+            COUNT(DISTINCT companies.id) as total_perusahaan,
             SUM(CASE WHEN companies.exist_spionam = 1 THEN 1 ELSE 0 END) as terdaftar_spionam,
-            SUM(CASE WHEN companies.exist_spionam = 0 OR exist_spionam IS NULL THEN 1 ELSE 0 END) as belum_terdaftar_spionam,
+            SUM(CASE WHEN companies.exist_spionam = 0 OR companies.exist_spionam IS NULL THEN 1 ELSE 0 END) as belum_terdaftar_spionam,
             SUM(CASE WHEN companies.is_active = 1 THEN 1 ELSE 0 END) as total_perusahaan_terverifikasi
-        ")->
-        leftJoin('certificate_requests', 'companies.id', '=', 'certificate_requests.company_id')
-        ->first();
+        ")->leftJoinSub(
+            CertificateRequest::select('company_id')
+                ->whereIn('id', function ($subquery) {
+                    $subquery->selectRaw('MAX(id)')
+                        ->from('certificate_requests')
+                        ->groupBy('company_id');
+                }),
+            'latest_certificate_requests',
+            'companies.id',
+            '=',
+            'latest_certificate_requests.company_id'
+        )->first();
 
         $response = [
             'total_perusahaan' => (int) $counts->total_perusahaan,
