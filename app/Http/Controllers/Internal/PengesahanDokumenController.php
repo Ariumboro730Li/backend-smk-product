@@ -548,6 +548,7 @@ class PengesahanDokumenController extends Controller
     }
     public function print(Request $request)
     {
+
         Carbon::setLocale('id'); // Set locale ke Bahasa Indonesia
 
         $data = CertificateRequestAssessment::where('certificate_request_id', $request->id)
@@ -574,37 +575,41 @@ class PengesahanDokumenController extends Controller
             }
         }
 
-        $nilai = collect(); // Untuk menyimpan hasil nilai
+        $nilai = collect(); // Untuk menyimpan hasil nilai per elemen
         $maxAssessment = $elementProperties['max_assesment'] ?? []; // Ambil data max_assesment
 
-        // Hitung nilai elemen
         if ($element && is_array($element)) {
 
             foreach ($element as $key => $subElements) {
+
                 if (Str::startsWith($key, 'element_')) {
 
+                    $totalScore = 0; // Total nilai normalisasi untuk elemen ini
+                    $subElementCount = 0; // Jumlah sub-elemen untuk elemen ini
+
                     foreach ($subElements as $subKey => $subValue) {
-                        $actualValue = isset($subValue['value']) ? intval($subValue['value']) : 0;
-                        $maxValue = isset($maxAssessment[$key][$subKey]) ? intval($maxAssessment[$key][$subKey]) : 0;
+                        $actualValue = floatval($subValue['value']);
+                        $maxValue = floatval($maxAssessment[$key][$subKey] ?? 0); // Gunakan 0 jika maxValue tidak ditemukan
 
                         if ($maxValue > 0) {
-                            if ($actualValue >= $maxValue) {
-                                $score = 10; // Jika actualValue sama atau lebih besar dari maxValue
-                            } else {
-                                $score = ($actualValue / $maxValue) * 10; // Proporsi nilai berdasarkan actualValue
-                            }
+                            $score = ($actualValue / $maxValue) * 10; // Normalisasi nilai ke skala 1-10
                         } else {
-                            $score = 0; // Jika maxValue tidak valid, nilai skor adalah 0
+                            $score = 0;
                         }
 
+                        $totalScore += $score;
+                        $subElementCount++;
                     }
 
-                    $score = round($score, 2);
-                    $nilai->put($key, $score);
+                    // Hitung rata-rata nilai untuk elemen ini
+                    $averageScore = $subElementCount > 0 ? $totalScore / $subElementCount : 0;
+
+                    // Simpan nilai rata-rata ke dalam koleksi
+                    $nilai->put($key, round($averageScore, 2)); // Dibulatkan ke 2 desimal
                 }
             }
-
         }
+
 
 
         $interviews = $data->isEmpty() ? collect() : $data->first()->assessment_interviews->first();
