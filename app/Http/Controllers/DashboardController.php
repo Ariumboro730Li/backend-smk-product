@@ -215,8 +215,8 @@ class DashboardController extends Controller
             return [
                 'date' => $item->date,
                 'pengajuan_awal' => (int) $item->pengajuanAwalcoUNT,
-                'proses_pengajuan' => (int) $item->pengajuanSelesai,
-                'proses_selesai' => (int) $item->prosesPengajuan
+                'proses_pengajuan' => (int) $item->prosesPengajuan,
+                'proses_selesai' => (int) $item->pengajuanSelesai
             ];
         });
 
