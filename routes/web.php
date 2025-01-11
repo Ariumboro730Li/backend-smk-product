@@ -11,6 +11,8 @@ use App\Http\Controllers\UploadFileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SettingController;
+use App\Mail\ForgotPasswordMail;
+use Illuminate\Support\Facades\Mail;
 
 /*
 |--------------------------------------------------------------------------
@@ -78,4 +80,3 @@ Route::group(['middleware' => 'check.token', 'auth.jwt'], function () {
 Route::get('oss/inquery-nib', [OssController::class, 'inqueryNib']);
 
 Route::get('setting/find', [SettingController::class, 'get']);
-
